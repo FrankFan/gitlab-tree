@@ -4,12 +4,18 @@
 	<meta charset="UTF-8">
 	<title>gitlab-tree</title>
 	<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.js"></script>
+	<script src="app.js"></script>
 	<script>
 		$(function() {
+			if($('head script[type="text/javascript"]').contents()[0]) {
+				getPrivateToken($('head script[type="text/javascript"]').contents()[0]['wholeText']);	
+			}
 			
+		});
 
 
-			var strXml = '//<![CDATA[window.gon={};gon.default_issues_tracker="gitlab";gon.api_version="v3";gon.relative_url_root="";gon.default_avatar_url="http://gitlab.lujs.cn/assets/no_avatar-adffbfe10d45b20495cd2a9b88974150.png";gon.current_user_id=516;gon.api_token="f5o7jas_rQYPCCLHxKVy";//]]>';
+		function getPrivateToken(strXml) {
+			// var strXml = $('head script[type="text/javascript"]').contents()[0]['wholeText'];
 			var arrXmlNode = strXml.toString().split(';')
 			var private_token;
 			var objXml = {};
@@ -27,9 +33,10 @@
 				}
 			}
 
-			console.log(private_token);
-			
-		});
+			console.log('private_token: ' + private_token);
+
+			return private_token;
+		}
 	</script>
 </head>
 <body>

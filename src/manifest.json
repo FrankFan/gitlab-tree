@@ -1,0 +1,25 @@
+{
+  "name": "gitlab tree",
+  "version": "0.0.1",
+  "manifest_version": 2,
+  "author": "Frank Fan",
+  "description": "Chrome extension to display Gitlab code in tree format",
+  "homepage_url": "https://github.com/FrankFan/gitlab-tree",
+  "icons": {
+    "16": "assets/32.png",
+    "32": "assets/32.png",
+    "48": "assets/48.png",
+    "128": "assets/128.png",
+    "256": "assets/256.png"
+  },
+  "permissions": [
+    "tabs"
+  ],
+  "optional_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "scripts": [ "background.js" ],
+    "persistent": false
+  }
+}
