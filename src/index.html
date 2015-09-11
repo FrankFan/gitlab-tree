@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>gitlab-tree</title>
+	<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.js"></script>
+	<script>
+		$(function() {
+			
+
+
+			var strXml = '//<![CDATA[window.gon={};gon.default_issues_tracker="gitlab";gon.api_version="v3";gon.relative_url_root="";gon.default_avatar_url="http://gitlab.lujs.cn/assets/no_avatar-adffbfe10d45b20495cd2a9b88974150.png";gon.current_user_id=516;gon.api_token="f5o7jas_rQYPCCLHxKVy";//]]>';
+			var arrXmlNode = strXml.toString().split(';')
+			var private_token;
+			var objXml = {};
+
+			for(var i = 1; i < arrXmlNode.length - 1; i++) {
+				var  item = arrXmlNode[i].split('=');
+				var key = item[0];
+				var value = item[1];
+				objXml[key] = value;
+			}
+
+			for(var key in objXml) {
+				if(key === 'gon.api_token') {
+					private_token = objXml[key];
+				}
+			}
+
+			console.log(private_token);
+			
+		});
+	</script>
+</head>
+<body>
+	
+</body>
+</html>
