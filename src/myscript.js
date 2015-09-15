@@ -12,8 +12,12 @@ function myMain (evt) {
 			var repository_ref = $('#repository_ref').val();
 			var repoName;
 			var path_with_namespace;
+			var originUrl = window.location.origin;
 
-			var apiRootUrl = 'https://gitlab.com/api/v3/projects/';
+			// var apiRootUrl = 'https://gitlab.com/api/v3/projects/';
+			// var apiRootUrl = 'http://gitlab.lujs.cn/api/v3/projects/';
+			
+			var apiRootUrl = originUrl + '/api/v3/projects/';
 			var apiProjects = apiRootUrl;
 			var apiRepoTree = apiRootUrl + project_id +'/repository/tree';
 			var apiFileContent = apiRootUrl + project_id + '/repository/files';
@@ -94,10 +98,6 @@ function myMain (evt) {
 	});
 
 	
-
-
-
-
     function getPrivateToken(strXml) {
 		// var strXml = $('head script[type="text/javascript"]').contents()[0]['wholeText'];
 		var arrXmlNode = strXml.toString().split(';')
@@ -121,8 +121,6 @@ function myMain (evt) {
 
 		return private_token;
 	}
-
-	// 
 	
 }
 

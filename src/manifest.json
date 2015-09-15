@@ -15,7 +15,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://gitlab.com/*"],
+      "matches": ["https://gitlab.com/*", "http://gitlab.lujs.cn/*"],
       "js": ["jquery.js","myscript.js"],
       "css": ["mycss.css"],
       "run_at": "document_start"
