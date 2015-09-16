@@ -16,7 +16,7 @@ function myMain (evt) {
 
 			// var apiRootUrl = 'https://gitlab.com/api/v3/projects/';
 			// var apiRootUrl = 'http://gitlab.lujs.cn/api/v3/projects/';
-			
+
 			var apiRootUrl = originUrl + '/api/v3/projects/';
 			var apiProjects = apiRootUrl;
 			var apiRepoTree = apiRootUrl + project_id +'/repository/tree';
@@ -99,7 +99,6 @@ function myMain (evt) {
 
 	
     function getPrivateToken(strXml) {
-		// var strXml = $('head script[type="text/javascript"]').contents()[0]['wholeText'];
 		var arrXmlNode = strXml.toString().split(';')
 		var private_token;
 		var objXml = {};
