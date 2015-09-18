@@ -13,7 +13,7 @@
 }
 
 .gitlab-tree li {
-
+    list-style:none;
 }
 
 .gitlab-tree li a {
