@@ -12,6 +12,12 @@
     overflow: auto;
 }
 
+
+.gitlab-tree ul {
+    padding-top: 50px;
+    font-size: 16px;
+}
+
 .gitlab-tree li {
     list-style:none;
 }
