@@ -51,10 +51,10 @@ function myMain (evt) {
 					var htmlTemplate = '<div class="gitlab-tree"><nav><ul>';
 					for(var key in result) {
 						var currentObj = result[key];
-						console.log(currentObj);
+
 						var li = '<li data-type="'+ currentObj.type 
 								+'" data-name="' + currentObj.name+'">';
-						// 'FrankFan/backbone-todos/blob/master/Gruntfile.js'
+
 						var href = '/' + path_with_namespace + '/blob/' + repository_ref + '/' + currentObj.name;
 						var tagA = '<a href=' + href + '>'+ currentObj.name +'</a>';
 						li += tagA;
@@ -115,8 +115,6 @@ function myMain (evt) {
 				private_token = objXml[key];
 			}
 		}
-
-		console.log('private_token: ' + private_token);
 
 		return private_token;
 	}
