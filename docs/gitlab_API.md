@@ -186,3 +186,28 @@ Get file from repository   获取文件列表
         "forks_count": 0
     }
 ]
+
+
+
+## UI
+
+```css
+.gitlab-tree {
+    width: 300px;
+}
+
+header {
+    margin-left: 300px;
+}
+
+nav {
+    margin-left: 300px;
+}
+
+.container {
+    margin-left: 300px;
+}
+```
+
+通过动态修改 `sidebar` 和 `mainContent` 的间距。
+
