@@ -25,6 +25,8 @@ curl --header "PRIVATE-TOKEN: f5o7jas_rQYPCCLHxKVy" "http://gitlab.lujs.cn/api/v
 curl --header "PRIVATE-TOKEN: f5o7jas_rQYPCCLHxKVy" "http://gitlab.lujs.cn/api/v3/projects/613/repository/tree"
 
 4.
+curl --header "PRIVATE-TOKEN: f5o7jas_rQYPCCLHxKVy" "http://gitlab.lujs.cn/api/v3/projects/613/repository/tree"
+
 
 5.
 
