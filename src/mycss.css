@@ -6,7 +6,7 @@
     background-color: rgba(0,0,0,.35);
     z-index: 10000;
     position: fixed;
-    width: 320px;
+    width: 300px;
     height: 100%;
     transform: translate3d(0px, 0px, 0px);
     overflow: auto;

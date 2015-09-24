@@ -201,16 +201,20 @@ Get file from repository   获取文件列表
     width: 300px;
 }
 
-header {
+header.navbar {
     margin-left: 300px;
 }
 
-nav {
+nav.main-nav {
     margin-left: 300px;
 }
 
 .container {
     margin-left: 300px;
+}
+
+body{
+    overflow: hidden;
 }
 ```
 

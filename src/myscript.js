@@ -65,6 +65,13 @@ function myMain (evt) {
 
 					$('body').append(htmlTemplate);
 
+					// 处理右侧gitlab的宽度
+					$('header.navbar').css('margin-left', '300px');
+					$('nav.main-nav').css('margin-left', '300px');
+					$('.container').css('margin-left', '300px');
+					$('body').css('overflow', 'hidden');
+
+
 
 					// 获取文件内容
 					function getFileContent(filePath) {
