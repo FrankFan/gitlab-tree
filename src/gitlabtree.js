@@ -1,8 +1,11 @@
-window.addEventListener("load", myMain, false);
+
+// 全局变量
 var private_token;
 var project_id;
 var repository_ref;
 var apiRepoTree;
+
+window.addEventListener("load", myMain, false);
 
 function myMain(evt) {
     $(function() {
