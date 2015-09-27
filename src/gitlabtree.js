@@ -1,9 +1,9 @@
 
 // 全局变量
-var private_token;
-var project_id;
-var repository_ref;
-var apiRepoTree;
+var private_token,
+    project_id,
+    repository_ref,
+    apiRepoTree;
 
 window.addEventListener("load", myMain, false);
 
