@@ -14,16 +14,20 @@ function myMain(evt) {
             private_token = private_token.replace(/\"/g, '');
             project_id = $('#project_id').val();
             repository_ref = $('#repository_ref').val();
+
             var repoName;
             var path_with_namespace;
             var originUrl = window.location.origin;
             // var apiRootUrl = 'https://gitlab.com/api/v3/projects/';
             // var apiRootUrl = 'http://gitlab.lujs.cn/api/v3/projects/';
+
             var apiRootUrl = originUrl + '/api/v3/projects/';
             var apiProjects = apiRootUrl;
             apiRepoTree = apiRootUrl + project_id + '/repository/tree';
             var apiFileContent = apiRootUrl + project_id + '/repository/files';
+
             console.log('request apiProjects: ' + apiProjects);
+            
             $.get(apiProjects, {
                 private_token: private_token
             }, function(repos) {
