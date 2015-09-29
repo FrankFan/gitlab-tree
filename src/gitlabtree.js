@@ -27,7 +27,7 @@ function myMain(evt) {
             var apiFileContent = apiRootUrl + project_id + '/repository/files';
 
             console.log('request apiProjects: ' + apiProjects);
-            
+
             $.get(apiProjects, {
                 private_token: private_token
             }, function(repos) {
@@ -74,27 +74,10 @@ function myMain(evt) {
                     }
                     htmlTemplate += '</ul></nav><div>';
                     $('body').append(htmlTemplate);
+                    
                     hackStyle();
+
                     eventHandlerRegister();
-                    // 获取文件内容
-                    // function getFileContent(filePath) {
-                    //  $.get(apiFileContent, {
-                    //      private_token: private_token,
-                    //      ref: repository_ref,
-                    //      file_path: filePath
-                    //  }, function(res) {
-                    //      console.log(res);
-                    //  });
-                    // }
-                    // $('.gitlab-tree li').on('click', function() {
-                    //  var filePath = this.dataset.name;
-                    //  var type = this.dataset.type
-                    //  if (type == 'blob') {
-                    //      getFileContent(filePath);
-                    //  } else {
-                    //      console.log('this is a folder.');
-                    //  }
-                    // });
                 });
             });
         }
