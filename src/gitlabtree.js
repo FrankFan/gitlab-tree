@@ -49,18 +49,7 @@ function myMain(evt) {
                     ref_name: repository_ref
                 }, function(result) {
                     console.log('request apiRepoTree result.length = ' + result.length);
-                    // result.forEach(function(item) {
-                    //     if (item.type == 'tree') {
-                    //         var path = item.name;
-                    //         getRepoTreeRecursively(apiRepoTree, {
-                    //             private_token: private_token,
-                    //             id: project_id,
-                    //             path: path,
-                    //             ref_name: repository_ref
-                    //         }, path);
-                    //     }
-                    // });
-                    // return;
+                    
                     // 动态创建一个div
                     var htmlTemplate = '<div class="gitlab-tree"><nav><ul>';
                     for (var key in result) {
@@ -74,7 +63,7 @@ function myMain(evt) {
                     }
                     htmlTemplate += '</ul></nav><div>';
                     $('body').append(htmlTemplate);
-                    
+
                     hackStyle();
 
                     eventHandlerRegister();
