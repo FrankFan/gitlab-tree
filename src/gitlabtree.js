@@ -62,9 +62,13 @@ function myMain(evt) {
                         htmlTemplate += li;
                     }
                     htmlTemplate += '</ul></nav><div>';
-                    $('body').append(htmlTemplate);
 
-                    hackStyle();
+                    if (isFilesTab()) {
+                        $('body').append(htmlTemplate);
+
+                        hackStyle();
+                    }
+                    
 
                     eventHandlerRegister();
                 });
@@ -157,4 +161,13 @@ function clickLIHandler(event) {
         });
         return false;
     }
+}
+
+// 判断当前是否是Files Tab
+function isFilesTab() {
+    var currentTabText = $('.project-navigation li.active a').text();
+    if (currentTabText === 'Files') {
+        return true;
+    }
+    return false;
 }
