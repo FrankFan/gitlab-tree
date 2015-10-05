@@ -178,8 +178,15 @@ function getRepoTreeRecursively(url, params, path) {
 
 // 处理右侧gitlab的宽度
 function hackStyle() {
-    $('header.navbar').css('margin-left', '300px');
-    $('nav.main-nav').css('margin-left', '300px');
-    $('.container').css('margin-left', '300px');
-    $('body').css('overflow', 'hidden');
+
+    if (location.href.indexOf('gitlab.com') > -1) {
+        $('.sidebar-wrapper').hide();
+        $('.gitlab-tree').css('width', '230px');
+    } else {
+        $('header.navbar').css('margin-left', '300px');
+        $('nav.main-nav').css('margin-left', '300px');
+        $('.container').css('margin-left', '300px');
+        $('body').css('overflow', 'hidden');
+    }
+    
 }
