@@ -1,16 +1,23 @@
 
 window.addEventListener ("load", myMain, false);
 
-function myMain (evt) {
-    var private_token;
 
+var private_token;
+var project_id;
+var repository_ref;
+var apiRepoTree;
+
+
+function myMain (evt) {
+    
+    
     $(function(){
         if($('head script[type="text/javascript"]').contents()[0]) {
             private_token = getPrivateToken($('head script[type="text/javascript"]').contents()[0]['wholeText']);
             private_token = private_token.replace(/\"/g, '');
 
-            var project_id = $('#project_id').val();
-            var repository_ref = $('#repository_ref').val();
+            project_id = $('#project_id').val();
+            repository_ref = $('#repository_ref').val();
             var repoName;
             var path_with_namespace;
             var originUrl = window.location.origin;
@@ -20,7 +27,7 @@ function myMain (evt) {
 
             var apiRootUrl = originUrl + '/api/v3/projects/';
             var apiProjects = apiRootUrl;
-            var apiRepoTree = apiRootUrl + project_id +'/repository/tree';
+            apiRepoTree = apiRootUrl + project_id +'/repository/tree';
             var apiFileContent = apiRootUrl + project_id + '/repository/files';
 
             console.log('request apiProjects: ' + apiProjects);
@@ -87,6 +94,8 @@ function myMain (evt) {
 
                     
                     hackStyle();
+
+                    eventHandlerRegister();
 
 
                     // 获取文件内容
@@ -189,4 +198,44 @@ function hackStyle() {
         $('body').css('overflow', 'hidden');
     }
     
+}
+
+// 绑定事件
+function eventHandlerRegister() {
+
+    // 1. li 的点击事件
+    $('.gitlab-tree li').on('click', clickLIHandler);
+}
+
+// li 的点击事件
+function clickLIHandler(event) {
+    console.log('click li');
+
+    var liElement = $(event.target).parent();
+    if (liElement.attr('data-type') == 'tree') {
+        // $.get();
+        console.log('发起请求');
+
+        var path = liElement.attr('data-name');
+
+        $.get(apiRepoTree, {
+            private_token: private_token,
+            id: project_id,
+            path: path,
+            ref_name: repository_ref
+        }, function(result) {
+            
+            console.dir(result);
+
+            result.forEach(function(item){
+                console.log('item type = ' + item.type + ' item name = ' + item.name);
+            });
+        });
+
+
+        return false;
+    }
+
+    
+
 }
