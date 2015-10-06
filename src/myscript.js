@@ -1,56 +1,40 @@
-
-window.addEventListener ("load", myMain, false);
-
-
+window.addEventListener("load", myMain, false);
 var private_token;
 var project_id;
 var repository_ref;
 var apiRepoTree;
 
-
-function myMain (evt) {
-    
-    
-    $(function(){
-        if($('head script[type="text/javascript"]').contents()[0]) {
+function myMain(evt) {
+    $(function() {
+        if ($('head script[type="text/javascript"]').contents()[0]) {
             private_token = getPrivateToken($('head script[type="text/javascript"]').contents()[0]['wholeText']);
             private_token = private_token.replace(/\"/g, '');
-
             project_id = $('#project_id').val();
             repository_ref = $('#repository_ref').val();
             var repoName;
             var path_with_namespace;
             var originUrl = window.location.origin;
-
             // var apiRootUrl = 'https://gitlab.com/api/v3/projects/';
             // var apiRootUrl = 'http://gitlab.lujs.cn/api/v3/projects/';
-
             var apiRootUrl = originUrl + '/api/v3/projects/';
             var apiProjects = apiRootUrl;
-            apiRepoTree = apiRootUrl + project_id +'/repository/tree';
+            apiRepoTree = apiRootUrl + project_id + '/repository/tree';
             var apiFileContent = apiRootUrl + project_id + '/repository/files';
-
             console.log('request apiProjects: ' + apiProjects);
-
-
             $.get(apiProjects, {
                 private_token: private_token
-            }, function(repos){
-
-                for(var key in repos) {
+            }, function(repos) {
+                for (var key in repos) {
                     var objRepoInfo = repos[key];
                     var path;
-                    if(objRepoInfo.id == project_id) {
+                    if (objRepoInfo.id == project_id) {
                         console.log(repos[key]);
                         path = objRepoInfo.path;
                         repoName = objRepoInfo.name;
                         path_with_namespace = objRepoInfo.path_with_namespace;
                     }
                 }
-
                 console.log('request apiRepoTree: ' + apiRepoTree);
-
-
                 $.get(apiRepoTree, {
                     private_token: private_token,
                     id: project_id,
@@ -58,12 +42,9 @@ function myMain (evt) {
                     ref_name: repository_ref
                 }, function(result) {
                     console.log('request apiRepoTree result.length = ' + result.length);
-
                     // result.forEach(function(item) {
-
                     //     if (item.type == 'tree') {
                     //         var path = item.name;
-
                     //         getRepoTreeRecursively(apiRepoTree, {
                     //             private_token: private_token,
                     //             id: project_id,
@@ -73,31 +54,21 @@ function myMain (evt) {
                     //     }
                     // });
                     // return;
-
                     // 动态创建一个div
                     var htmlTemplate = '<div class="gitlab-tree"><nav><ul>';
-                    for(var key in result) {
+                    for (var key in result) {
                         var currentObj = result[key];
-
-                        var li = '<li data-type="'+ currentObj.type 
-                                +'" data-name="' + currentObj.name+'">';
-
+                        var li = '<li data-type="' + currentObj.type + '" data-name="' + currentObj.name + '">';
                         var href = '/' + path_with_namespace + '/blob/' + repository_ref + '/' + currentObj.name;
-                        var tagA = '<a href=' + href + '>'+ currentObj.name +'</a>';
+                        var tagA = '<a href=' + href + '>' + currentObj.name + '</a>';
                         li += tagA;
                         li += '</li>';
                         htmlTemplate += li;
                     }
                     htmlTemplate += '</ul></nav><div>';
-
                     $('body').append(htmlTemplate);
-
-                    
                     hackStyle();
-
                     eventHandlerRegister();
-
-
                     // 获取文件内容
                     // function getFileContent(filePath) {
                     //  $.get(apiFileContent, {
@@ -108,12 +79,9 @@ function myMain (evt) {
                     //      console.log(res);
                     //  });
                     // }
-
-
                     // $('.gitlab-tree li').on('click', function() {
                     //  var filePath = this.dataset.name;
                     //  var type = this.dataset.type
-
                     //  if (type == 'blob') {
                     //      getFileContent(filePath);
                     //  } else {
@@ -121,73 +89,58 @@ function myMain (evt) {
                     //  }
                     // });
                 });
-
             });
-
         }
-
-
     });
 }
-
 // 获取private_token
 function getPrivateToken(strXml) {
     var arrXmlNode = strXml.toString().split(';')
     var private_token;
     var objXml = {};
-
-    for(var i = 1; i < arrXmlNode.length - 1; i++) {
-        var  item = arrXmlNode[i].split('=');
+    for (var i = 1; i < arrXmlNode.length - 1; i++) {
+        var item = arrXmlNode[i].split('=');
         var key = item[0];
         var value = item[1];
         objXml[key] = value;
     }
-
-    for(var key in objXml) {
-        if(key === 'gon.api_token') {
+    for (var key in objXml) {
+        if (key === 'gon.api_token') {
             private_token = objXml[key];
         }
     }
-
     return private_token;
 }
 
-function ajaxGet(url, params, success)  {
+function ajaxGet(url, params, success) {
     console.log('ajaxGet come in');
     $.get(url, params, function(data) {
         console.log('ajaxGet success');
         success(data);
     });
 }
-
 // get repo tree recursively
 // 不能使用递归获取目录结构的方法， 太慢了，浏览器爆掉了
 function getRepoTreeRecursively(url, params, path) {
-
-
-    ajaxGet(url, params, function(result){
-
+    ajaxGet(url, params, function(result) {
         console.log(result);
-
         for (var i = 0; i < result.length; i++) {
             var item = result[i];
             if (item.type == 'tree') {
                 console.log(item.name + '这是tree');
-
                 var path2 = path + '/' + item.name;
-                $.extend(params, {path: path2})
+                $.extend(params, {
+                    path: path2
+                })
                 getRepoTreeRecursively(url, params, path2);
             } else {
                 console.log(item.name + '这不是tree');
             }
         };
-
     });
 }
-
 // 处理右侧gitlab的宽度
 function hackStyle() {
-
     if (location.href.indexOf('gitlab.com') > -1) {
         $('.sidebar-wrapper').hide();
         $('.gitlab-tree').css('width', '230px');
@@ -197,45 +150,32 @@ function hackStyle() {
         $('.container').css('margin-left', '300px');
         $('body').css('overflow', 'hidden');
     }
-    
 }
-
 // 绑定事件
 function eventHandlerRegister() {
-
     // 1. li 的点击事件
-    $('.gitlab-tree li').on('click', clickLIHandler);
+    $('.gitlab-tree li a').on('click', clickLIHandler);
 }
-
 // li 的点击事件
 function clickLIHandler(event) {
     console.log('click li');
-
     var liElement = $(event.target).parent();
     if (liElement.attr('data-type') == 'tree') {
         // $.get();
         console.log('发起请求');
-
         var path = liElement.attr('data-name');
-
         $.get(apiRepoTree, {
             private_token: private_token,
             id: project_id,
             path: path,
             ref_name: repository_ref
         }, function(result) {
-            
             console.dir(result);
-
-            result.forEach(function(item){
-                console.log('item type = ' + item.type + ' item name = ' + item.name);
+            result.forEach(function(item) {
+                var newLi = '<li data-type="' + item.type + '" data-name="' + item.name + '">' + item.name + '</li>';
+                liElement.append(newLi);
             });
         });
-
-
         return false;
     }
-
-    
-
 }
