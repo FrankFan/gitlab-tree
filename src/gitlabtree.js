@@ -28,6 +28,9 @@ function myMain(evt) {
 
             console.log('request apiProjects: ' + apiProjects);
 
+            
+
+
             $.get(apiProjects, {
                 private_token: private_token
             }, function(repos) {
@@ -50,21 +53,64 @@ function myMain(evt) {
                 }, function(result) {
                     console.log('request apiRepoTree result.length = ' + result.length);
                     
-                    // 动态创建一个div
-                    var htmlTemplate = '<div class="gitlab-tree"><nav><ul>';
-                    for (var key in result) {
-                        var currentObj = result[key];
-                        var li = '<li data-type="' + currentObj.type + '" data-name="' + currentObj.name + '">';
-                        var href = '/' + path_with_namespace + '/blob/' + repository_ref + '/' + currentObj.name;
-                        var tagA = '<a href=' + href + '>' + currentObj.name + '</a>';
-                        li += tagA;
-                        li += '</li>';
-                        htmlTemplate += li;
-                    }
-                    htmlTemplate += '</ul></nav><div>';
-
                     if (isFilesTab()) {
+
+                        // 动态创建一个div
+                        var htmlTemplate = '<div class="gitlab-tree"><nav><ul>';
+                        for (var key in result) {
+                            var currentObj = result[key];
+                            var li = '<li data-type="' + currentObj.type + '" data-name="' + currentObj.name + '">';
+                            var href = '/' + path_with_namespace + '/blob/' + repository_ref + '/' + currentObj.name;
+                            var tagA = '<a href=' + href + '>' + currentObj.name + '</a>';
+                            li += tagA;
+                            li += '</li>';
+                            htmlTemplate += li;
+                        }
+                        htmlTemplate += '</ul></nav></div>';
+
+                        // 创建一个container
                         $('body').append(htmlTemplate);
+
+
+                        // 构建一颗子树
+                        console.log('构建一颗子树');
+
+
+                        var dataDisplay = [];
+                        result.forEach(function(item) {
+                            console.log(item);
+                            var singleObj = {};
+                            singleObj.text = item.name;
+                            if (item.type === 'tree') {
+                                singleObj.children = [];
+                            } else if (item.type === 'blob') {
+                                singleObj.icon = 'glyphicon glyphicon-flash';
+                            }
+
+
+                            dataDisplay.push(singleObj);
+                        });
+
+                        // var dataDisplay = [{
+                        //     "text": "Root node",
+                        //     "children": [{
+                        //         "text": "Child node 1"
+                        //     }, {
+                        //         "text": "Child node 2",
+                        //         "children": [{
+                        //             "text": "这是子树的child"
+                        //         }]
+                        //     }]
+                        // }];
+
+                        console.log(dataDisplay);
+
+                        $('.gitlab-tree nav').jstree({
+                            'core': {
+                                'data': dataDisplay
+                            },
+                            plugins : ['wholerow']
+                        });
 
                         hackStyle();
                     }
