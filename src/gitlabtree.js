@@ -181,13 +181,17 @@ function myMain(evt) {
                              // $(".gitlab-tree nav").jstree("create_node",$('.gitlab-tree nav'),false,{ state: "leaf", data: "No rename!" },false,true);
                              // jQuery(".gitlab-tree nav").jstree(true).create_node( $('#j1_1'), {text: "New node", id: true} , "last", false, true );
 
-                            $('.gitlab-tree nav').bind("create.jstree", function(e, data) {
-                                console.log('createed');
-                            });
+                            // $('.gitlab-tree nav').bind("create.jstree", function(e, data) {
+                            //     console.log('createed');
+                            // });
 
-                            $(".gitlab-tree nav").jstree().create_node($('#j1_1'), {text: "New node", id: true}, 'last', function() {
-                                console.log('added');
-                            }, true);
+                            // $(".gitlab-tree nav").jstree().create_node($('#j1_1'), {text: "New node", id: true}, 'last', function() {
+                            //     console.log('added');
+                            // }, true);
+
+
+                            $(".gitlab-tree nav").jstree(true)
+                              .select_node('j1_5');
 
                             // var instance = $(".gitlab-tree nav").jstree(true);
                             // console.log(instance);
