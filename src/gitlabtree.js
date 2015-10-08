@@ -83,8 +83,10 @@ function myMain(evt) {
                             singleObj.text = item.name;
                             if (item.type === 'tree') {
                                 singleObj.children = [];
+                                singleObj.data = 'tree';
                             } else if (item.type === 'blob') {
-                                singleObj.icon = 'glyphicon glyphicon-flash';
+                                singleObj.icon = 'glyphicon glyphicon-file';
+                                singleObj.data = 'blob';
                             }
 
 
@@ -112,7 +114,106 @@ function myMain(evt) {
                             plugins : ['wholerow']
                         });
 
+                        $('.gitlab-tree nav').on("changed.jstree", function(e, data) {
+                            console.log("The selected nodes are:" + data.selected);
+                            console.log(data);
+
+                            if (data && data.node && data.node.data == 'tree') {
+                                var path = data.node.text;
+                                var parparentNode = data.node.id;
+
+                                $.get(apiRepoTree, {
+                                    private_token: private_token,
+                                    id: project_id,
+                                    path: path,
+                                    ref_name: repository_ref
+                                }, function(result) {
+                                    console.dir(result);
+
+                                    // $(".gitlab-tree nav").jstree(true).create_node($('#j1_1'), {
+                                    //     text: "New node",
+                                    //     id: true
+                                    // }, "last", function() {
+                                    //     console.log('create_node');
+                                    // }, 'true');
+
+// createNode(parent, id, text, position).
+
+                                    // $(".gitlab-tree nav").jstree("create_node", $("#j1_1"), {
+                                    //         "text": "child2",
+                                    //         "id": true
+                                    //     },
+                                    //     'last',
+                                    //     function() {
+                                    //         alert("added");
+                                    //     }, true);
+
+                                    // $('.gitlab-tree nav').jstree('create_node', $('#j1_1'), {
+                                    //     'text': 'test',
+                                    //     'id': 'new_node_id'
+                                    // }, 'last', function(){
+                                    //     alert('added');
+                                    // }, false);
+
+                                    // createNode("#j1_1", "sub_2", "Sub 2", "last");
+
+                                    // $('.gitlab-tree nav').jstree('create_node', $(parent_node), {
+                                    //     "text": new_node_text,
+                                    //     "id": new_node_id
+                                    // }, position, false, false);
+
+                                    // result.forEach(function(item) {
+                                    //     var newLi = '<li data-type="' + item.type + '" data-name="' + item.name + '">' + item.name + '</li>';
+                                    //     liElement.append(newLi);
+                                    // });
+                                });
+                            } else { // blob
+
+                            }
+                        });
+
                         hackStyle();
+
+                        // When the jsTree is ready, add two more records.
+                        $('.gitlab-tree nav').on('ready.jstree', function (e, data) {
+                            console.log('trees are ready 222');
+
+                             // $(".gitlab-tree nav").jstree("create_node",$('.gitlab-tree nav'),false,{ state: "leaf", data: "No rename!" },false,true);
+                             // jQuery(".gitlab-tree nav").jstree(true).create_node( $('#j1_1'), {text: "New node", id: true} , "last", false, true );
+
+                            $('.gitlab-tree nav').bind("create.jstree", function(e, data) {
+                                console.log('createed');
+                            });
+
+                            $(".gitlab-tree nav").jstree().create_node($('#j1_1'), {text: "New node", id: true}, 'last', function() {
+                                console.log('added');
+                            }, true);
+
+                            // var instance = $(".gitlab-tree nav").jstree(true);
+                            // console.log(instance);
+
+                            // $(".gitlab-tree nav").jstree(true).bind("create_node.jstree", function (e, data) { 
+                            //     console.log(e);
+                            //     console.log(data);
+                            // });
+
+                            // instance.create_node($('#j1_1'), {
+                            //     'text': 'test',
+                            //     'id': 'new_node_id'
+                            // }, 'last', function(){
+                            //     alert('added');
+                            // }, false);
+
+                             // createNode("#j1_1", "another_base_directory", "Another Base Directory", "first");
+                             // createNode("#j2_1", "sub_2", "Sub 2", "last");
+
+                            // $('.gitlab-tree nav').jstree('create_node', $('#j1_1'), {
+                            //     'text': 'test',
+                            //     'id': 'new_node_id'
+                            // }, 'last', function(){
+                            //     alert('added');
+                            // }, false);
+                        });
                     }
                     
 
@@ -216,4 +317,14 @@ function isFilesTab() {
         return true;
     }
     return false;
+}
+
+
+// Helper method createNode(parent, id, text, position).
+// Dynamically adds nodes to the jsTree. Position can be 'first' or 'last'.
+function createNode(parent_node, new_node_id, new_node_text, position) {
+    $('.gitlab-tree nav').jstree('create_node', $(parent_node), {
+        "text": new_node_text,
+        "id": new_node_id
+    }, position, false, false);
 }
