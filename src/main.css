@@ -3,7 +3,7 @@
     top: 0;
     bottom: 0;
     left: 0;
-    background-color: rgba(0,0,0,.35);
+    background-color: rgba(247,247,247,1);
     z-index: 10000;
     position: fixed;
     width: 300px;
@@ -23,7 +23,8 @@
 }
 
 .gitlab-tree li a {
-	color: #fff;
+    color: #446E9B !important;
+    font-size: 13px;
 }
 
 .icon-file {
