@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>index</title>
+</head>
+<body>
+	<p id="result">test</p>
+
+
+<script>
+
+// 删除数组中指定的元素
+function removeElement(index, array) {
+    if (index >= 0 && index < array.length) {
+        for (var i = index; i < array.length; i++) {
+            array[i] = array[i + 1];
+        }
+        array.length = array.length - 1;
+    }
+    return array;
+}
+
+
+// path = "java/main/src/"
+//    --> "src/main/java"
+function revertPath(revertedPathString) {
+	var retString = '';
+    var arrString = revertedPathString.split('/');
+    
+    // 1 删除空元素
+    arrString.forEach(function(item, index){
+        if (item === '') {
+            removeElement(index, arrString);
+        }
+    });
+
+    arrString.forEach(function(item, index){
+        console.log('index = ' + index + ' item = ' + item);
+    });
+
+    for (var i = arrString.length - 1; i >= 0; i--) {
+    	var item = arrString[i];
+    	console.log('index = ' + i + ' item = ' + item);
+    	retString += item + '/';
+    };
+
+    console.log('retString = ' + retString);
+    return retString;
+}
+
+
+revertPath("java/main/src/");
+
+</script>
+
+	<!--<script src="countdown.js"></script>-->
+</body>
+</html>
+
+
+
+
