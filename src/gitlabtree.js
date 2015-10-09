@@ -221,6 +221,8 @@ function hackStyle() {
     if (location.href.indexOf('gitlab.com') > -1) {
         $('.sidebar-wrapper').hide();
         $('.gitlab-tree').css('width', '230px');
+        $('header.navbar').css('margin-left', '230px');
+        // $('.content-wrapper').css('margin-left', '160px');
     } else {
         // $('header.navbar').css('margin-left', '300px');
         // $('nav.main-nav').css('margin-left', '300px');
@@ -308,7 +310,8 @@ console.log(' pjax  ccc');
 // 判断当前是否是Files Tab
 function isFilesTab() {
     var currentTabText = $('.project-navigation li.active a').text();
-    if (currentTabText === 'Files') {
+
+    if (currentTabText === 'Files' || $('.nav.nav-sidebar li.active a').text().trim() === 'Files') {
         return true;
     }
     return false;
