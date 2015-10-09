@@ -252,7 +252,6 @@ function revertPath(revertedPathString) {
     // 2.倒序排列
     for (var i = arrString.length - 1; i >= 0; i--) {
         var item = arrString[i];
-        console.log('index = ' + i + ' item = ' + item);
         retString += item + '/';
     };
 
@@ -261,7 +260,6 @@ function revertPath(revertedPathString) {
         retString = retString.substr(0, retString.length - 1);    
     }
 
-    console.log('retString = ' + retString);
     return retString;
 }
 
