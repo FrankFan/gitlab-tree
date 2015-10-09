@@ -219,8 +219,8 @@ function hackStyle() {
         $('.sidebar-wrapper').hide();
         $('.gitlab-tree').css('width', '230px');
     } else {
-        $('header.navbar').css('margin-left', '300px');
-        $('nav.main-nav').css('margin-left', '300px');
+        // $('header.navbar').css('margin-left', '300px');
+        // $('nav.main-nav').css('margin-left', '300px');
         $('.container').css('margin-left', '300px');
         $('body').css('overflow', 'hidden');
     }
