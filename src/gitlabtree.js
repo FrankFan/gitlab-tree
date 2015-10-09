@@ -84,11 +84,11 @@ function myMain(evt) {
                             if (item.type === 'tree') {
                                 singleObj.children = [];
                                 singleObj.data = 'tree';
+                                // singleObj.icon = 'icon-folder';
                             } else if (item.type === 'blob') {
-                                singleObj.icon = 'glyphicon glyphicon-file';
+                                singleObj.icon = 'icon-file';
                                 singleObj.data = 'blob';
                             }
-
 
                             dataDisplay.push(singleObj);
                         });
@@ -123,10 +123,13 @@ function myMain(evt) {
 
                             var newNode = {
                                 state: "open",
-                                data: "New nooooode!"
+                                data: "New nooooode!",
+                                text: '新节点',
+                                id: 'new_node_id',
+                                icon: 'icon-file'
                             };
                             
-                            $(".gitlab-tree nav").jstree().create_node($('#j1_2'), newNode, 'last');
+                            $(".gitlab-tree nav").jstree(true).create_node($('#j1_2'), newNode, 'last');
 
                             $(".gitlab-tree nav").jstree(true).open_all(); 
 

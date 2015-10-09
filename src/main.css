@@ -25,3 +25,20 @@
 .gitlab-tree li a {
 	color: #fff;
 }
+
+.icon-file {
+    background-image: url(http://images2015.cnblogs.com/blog/282019/201510/282019-20151009142629440-1645550050.png) !important;
+    height: 13px !important;
+    width: 13px !important;
+    margin-top: 5px !important;
+    margin-right: 5px !important;
+    margin-left: 5px !important;
+}
+
+.icon-folder {
+    background-image: url(http://images2015.cnblogs.com/blog/282019/201510/282019-20151009142857674-1278390934.png) !important;
+    height: 13px !important;
+    width: 13px !important;
+    margin-top: 5px !important;
+    margin-right: 5px !important;
+}
