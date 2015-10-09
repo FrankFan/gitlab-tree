@@ -3,7 +3,9 @@
 var private_token,
     project_id,
     repository_ref,
-    apiRepoTree;
+    apiRepoTree,
+    path_with_namespace,
+    originUrl;
 
 window.addEventListener("load", myMain, false);
 
@@ -16,8 +18,7 @@ function myMain(evt) {
             repository_ref = $('#repository_ref').val();
 
             var repoName;
-            var path_with_namespace;
-            var originUrl = window.location.origin;
+            originUrl = window.location.origin;
             // var apiRootUrl = 'https://gitlab.com/api/v3/projects/';
             // var apiRootUrl = 'http://gitlab.lujs.cn/api/v3/projects/';
 
@@ -202,16 +203,30 @@ function myMain(evt) {
 
                                 });
                             } else { // blob
+                                var path = data.node.text + '/';
+                                var arrParents = data.node.parents;
+
+                                // data.node.parents
+                                // ["j1_13", "j1_3", "#"]
+                                arrParents.forEach(function(item){
+                                    if (item !== '#') {
+                                        var tmpText = $(".gitlab-tree nav").jstree(true).get_text(item);
+                                        path += tmpText + '/';
+                                    }
+                                });
+
+                                path = revertPath(path);
+
+
                                 // 文件，通过url获取内容
+                                console.log('点击的是 ' + data.node.text);
+                                var href = originUrl + '/' + path_with_namespace + '/blob/' + repository_ref + '/' + path;
+                                console.log(href);
+                                // window.location.href = href;
                             }
                         });
 
                         hackStyle();
-
-                        // When the jsTree is ready, add two more records.
-                        // $('.gitlab-tree nav').on('ready.jstree', function (e, data) {
-                        //     $(".gitlab-tree nav").jstree(true).select_node('j1_2');
-                        // });
                     }
 
                 });
@@ -316,6 +331,11 @@ function revertPath(revertedPathString) {
         console.log('index = ' + i + ' item = ' + item);
         retString += item + '/';
     };
+
+    // 3.去掉最后一个/
+    if (retString.substr(retString.length - 1) === '/') {
+        retString = retString.substr(0, retString.length - 1);    
+    }
 
     console.log('retString = ' + retString);
     return retString;
