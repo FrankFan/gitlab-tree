@@ -138,21 +138,32 @@ function myMain(evt) {
 
                                 console.log(parentNode);
 
-                                var arrTagA = [];
-                                if (parentNode !== '#') {
-                                    arrTagA = $('#' + parentNode).find('a').toArray();
-                                }
 
-                                if (Array.isArray(arrTagA) && arrTagA.length > 0) {
-                                    path = '';
+                                // 获取select节点+ 父节点的text
+                                var currentNodeText = data.node.text;
+                                var arrParents = data.node.parents;
 
-                                    arrTagA.forEach(function(tagA) {
-                                        console.log('tagA');
-                                        console.log(tagA);
+                                path = currentNodeText + '/';
 
-                                        path += tagA.text;
-                                        path += '/';
-                                    });
+                                // data.node.parents
+                                // ["j1_13", "j1_3", "#"]
+                                arrParents.forEach(function(item){
+                                    if (item !== '#') {
+                                        var tmpText = $(".gitlab-tree nav").jstree(true).get_text(item);
+                                        path += tmpText + '/';
+                                    }
+                                });
+
+                                console.log('path = ' + path);
+
+                                // path = "main/src/"
+                                path = revertPath(path);
+
+
+                                // 如果已经加载过了，就不要重复加载了
+                                if (localStorage.getItem('path') == path) {
+                                    console.log('the same path, abort');
+                                    return;
                                 }
                                 
                                 // 获取子目录结构
@@ -163,6 +174,8 @@ function myMain(evt) {
                                     ref_name: repository_ref
                                 }, function(result) {
                                     console.dir(result);
+
+                                    localStorage.setItem('path', path);
 
                                     var nodesDisplay = [];
                                     result.forEach(function(item) {
@@ -311,4 +324,40 @@ function createNode(parent_node, new_node_id, new_node_text, position) {
         "text": new_node_text,
         "id": new_node_id
     }, position, false, false);
+}
+
+// path = "java/main/src/"
+//    --> "src/main/java"
+function revertPath(revertedPathString) {
+    var retString = '';
+    var arrString = revertedPathString.split('/');
+    
+    // 1 删除空元素
+    arrString.forEach(function(item, index){
+        if (item === '') {
+            removeElement(index, arrString);
+        }
+    });
+
+    // 2.倒序排列
+    for (var i = arrString.length - 1; i >= 0; i--) {
+        var item = arrString[i];
+        console.log('index = ' + i + ' item = ' + item);
+        retString += item + '/';
+    };
+
+    console.log('retString = ' + retString);
+    return retString;
+}
+
+
+// 删除数组中指定的元素
+function removeElement(index, array) {
+    if (index >= 0 && index < array.length) {
+        for (var i = index; i < array.length; i++) {
+            array[i] = array[i + 1];
+        }
+        array.length = array.length - 1;
+    }
+    return array;
 }
