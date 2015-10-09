@@ -182,7 +182,7 @@ function myMain(evt) {
                                 // http://gitlab.lujs.cn /   mobile/m-web           /blob/   master            /     src/main/webapp/resource/loader.js
                                 var href = originUrl + '/' + path_with_namespace + '/blob/' + repository_ref + '/' + path;
                                 console.log(href);
-
+console.log(' pjax  4');
                                 window.location.href = href;
                             }
                         });
@@ -234,14 +234,75 @@ function enablePJAX() {
 
         console.log('支持 pjax  = ' + $.support.pjax);
 
-        $(document).on('click', '.gitlab-tree nav a', function(event) {
-            var container = $('.content').parent();
-            container.attr('id', 'myContainer');
-            $.pjax.click(event, {
-                container: container
-            })
-        })
+        // $(document).on('click', '.gitlab-tree nav a', function(event) {
+        //     var container = $('.content').parent();
+        //     container.attr('id', 'myContainer');
+        //     // $.pjax.click(event, {
+        //     //     container: container
+        //     // })
+        //     // $(document).pjax('.gitlab-tree nav a', '#myContainer', {
+        //     //     fragment: '#myContainer',
+        //     //     timeout: 6000
+        //     // });
+        //     console.log(' pjax  2');
+            
+        // })
+
+
+        // $(document).on('click', '.gitlab-tree nav a', function(event) {
+        //     var container = $('.content').parent();
+        //     container.attr('id', 'myContainer');
+        //     console.log(' pjax  3');
+        //     $.pjax.click(event, container)
+        // })
+
+        var container = $('.content').parent();
+        container.attr('id', 'myContainer');
+        $(document).pjax('.gitlab-tree nav a', '#myContainer', {
+            fragment: '#myContainer',
+            timeout: 6000
+        });
+
+
+
+
+console.log(' pjax  sss');
+        $(document).on('pjax:send', function() {
+            //执行pjax开始，在这里添加要重载的代码，可自行添加loading动画代码。例如你已调用了NProgress，在这里添加 NProgress.start();
+            console.log('pjax:send');
+        });
+        $(document).on('pjax:complete', function() {
+            //执行pjax结束，在这里添加要重载的代码，可自行添加loading动画结束或隐藏代码。例如NProgress的结束代码 NProgress.done();
+            console.log('pjax:complete');
+        });
+console.log(' pjax  ccc');
     }
+
+
+
+    $(function() {
+        
+        //这是a标签的pjax。#content 表示执行pjax后会发生变化的id，改成你主题的内容主体id或class。timeout是pjax响应时间限制，如果在设定时间内未响应就执行页面转跳，可自由设置。
+        // $(document).pjax('a', '#content', {
+        //     fragment: '#content',
+        //     timeout: 6000
+        // }); 
+
+        //这是提交表单的pjax。form表示所有的提交表单都会执行pjax，比如搜索和提交评论，可自行修改改成你想要执行pjax的form id或class。#content 同上改成你主题的内容主体id或class。
+        // $(document).on('submit', 'form', function(event) {
+        //     $.pjax.submit(event, '#content', {
+        //         fragment: '#content',
+        //         timeout: 6000
+        //     });
+        // });
+
+        // $(document).on('pjax:send', function() {
+        //     //执行pjax开始，在这里添加要重载的代码，可自行添加loading动画代码。例如你已调用了NProgress，在这里添加 NProgress.start();
+        // });
+        // $(document).on('pjax:complete', function() {
+        //     //执行pjax结束，在这里添加要重载的代码，可自行添加loading动画结束或隐藏代码。例如NProgress的结束代码 NProgress.done();
+        // });
+    });
 }
 
 // 判断当前是否是Files Tab
