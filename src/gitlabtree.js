@@ -182,11 +182,14 @@ function myMain(evt) {
                                 // http://gitlab.lujs.cn /   mobile/m-web           /blob/   master            /     src/main/webapp/resource/loader.js
                                 var href = originUrl + '/' + path_with_namespace + '/blob/' + repository_ref + '/' + path;
                                 console.log(href);
-                                // window.location.href = href;
+
+                                window.location.href = href;
                             }
                         });
 
                         hackStyle();
+
+                        enablePJAX();
                     }
 
                 });
@@ -223,6 +226,21 @@ function hackStyle() {
         // $('nav.main-nav').css('margin-left', '300px');
         $('.container').css('margin-left', '300px');
         $('body').css('overflow', 'hidden');
+    }
+}
+
+function enablePJAX() {
+    if ($.support.pjax) {
+
+        console.log('支持 pjax  = ' + $.support.pjax);
+
+        $(document).on('click', '.gitlab-tree nav a', function(event) {
+            var container = $('.content').parent();
+            container.attr('id', 'myContainer');
+            $.pjax.click(event, {
+                container: container
+            })
+        })
     }
 }
 
