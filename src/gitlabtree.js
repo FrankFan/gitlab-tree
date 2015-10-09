@@ -114,9 +114,9 @@ function myMain(evt) {
                         });
 
                         $('.gitlab-tree nav').on("changed.jstree", function(e, data) {
-                            var parent = $(".gitlab-tree nav").jstree('get_selected');
+                            var selectNode = $(".gitlab-tree nav").jstree('get_selected');
  
-                            console.log(parent);
+                            console.log(selectNode);
 
 
                             // var newNode = {
@@ -132,8 +132,30 @@ function myMain(evt) {
 
                             if (data && data.node && data.node.data == 'tree') {
                                 var path = data.node.text;
-                                var parparentNode = data.node.id;
+                                var currentNodeId = data.node.id;
 
+                                var parentNode = $(".gitlab-tree nav").jstree(true).get_parent(currentNodeId);
+
+                                console.log(parentNode);
+
+                                var arrTagA = [];
+                                if (parentNode !== '#') {
+                                    arrTagA = $('#' + parentNode).find('a').toArray();
+                                }
+
+                                if (Array.isArray(arrTagA) && arrTagA.length > 0) {
+                                    path = '';
+
+                                    arrTagA.forEach(function(tagA) {
+                                        console.log('tagA');
+                                        console.log(tagA);
+
+                                        path += tagA.text;
+                                        path += '/';
+                                    });
+                                }
+                                
+                                // 获取子目录结构
                                 $.get(apiRepoTree, {
                                     private_token: private_token,
                                     id: project_id,
@@ -159,9 +181,11 @@ function myMain(evt) {
                                     });
 
                                     nodesDisplay.forEach(function(item) {
-                                        $(".gitlab-tree nav").jstree(true).create_node(parent, item, 'last');
+                                        $(".gitlab-tree nav").jstree(true).create_node(selectNode, item, 'last');
                                     });
                                     
+                                    // $(".gitlab-tree nav").jstree(true).open_all();
+                                    $(".gitlab-tree nav").jstree(true).open_node(selectNode);
 
                                 });
                             } else { // blob
