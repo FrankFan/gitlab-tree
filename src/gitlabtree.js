@@ -179,10 +179,7 @@ function myMain(evt) {
                                 });
 
                                 path = revertPath(path);
-
-
-                                // 文件，通过url获取内容
-                                console.log('点击的是 ' + data.node.text);
+                                // http://gitlab.lujs.cn /   mobile/m-web           /blob/   master            /     src/main/webapp/resource/loader.js
                                 var href = originUrl + '/' + path_with_namespace + '/blob/' + repository_ref + '/' + path;
                                 console.log(href);
                                 // window.location.href = href;
