@@ -56,24 +56,9 @@ function myMain(evt) {
                     
                     if (isFilesTab()) {
 
-                        // 动态创建一个div
-                        // var htmlTemplate = '<div class="gitlab-tree"><nav><ul>';
-                        // for (var key in result) {
-                        //     var currentObj = result[key];
-                        //     var li = '<li data-type="' + currentObj.type + '" data-name="' + currentObj.name + '">';
-                        //     var href = '/' + path_with_namespace + '/blob/' + repository_ref + '/' + currentObj.name;
-                        //     var tagA = '<a href=' + href + '>' + currentObj.name + '</a>';
-                        //     li += tagA;
-                        //     li += '</li>';
-                        //     htmlTemplate += li;
-                        // }
-                        // htmlTemplate += '</ul></nav></div>';
-
-
-                        // 动态创建一个div
+                        // 创建一个container
                         var htmlTemplate = '<div class="gitlab-tree"><nav>';
                         htmlTemplate += '</nav></div>';
-                        // 创建一个container
                         $('body').append(htmlTemplate);
 
                         // 构建一颗子树
@@ -104,8 +89,7 @@ function myMain(evt) {
                         //     }]
                         // }];
 
-
-
+                        // 实例化一棵树
                         $('.gitlab-tree nav').jstree({
                             'core': {
                                 'data': dataDisplay,
@@ -116,29 +100,11 @@ function myMain(evt) {
 
                         $('.gitlab-tree nav').on("changed.jstree", function(e, data) {
                             var selectNode = $(".gitlab-tree nav").jstree('get_selected');
- 
-                            console.log(selectNode);
-
-
-                            // var newNode = {
-                            //     state: "open",
-                            //     data: "New nooooode!",
-                            //     text: '新节点',
-                            //     id: 'new_node_id',
-                            //     icon: 'icon-file'
-                            // };
-                            // $(".gitlab-tree nav").jstree(true).create_node(parent, newNode, 'last');
-                            // $(".gitlab-tree nav").jstree(true).open_all();
-
 
                             if (data && data.node && data.node.data == 'tree') {
                                 var path = data.node.text;
                                 var currentNodeId = data.node.id;
-
                                 var parentNode = $(".gitlab-tree nav").jstree(true).get_parent(currentNodeId);
-
-                                console.log(parentNode);
-
 
                                 // 获取select节点+ 父节点的text
                                 var currentNodeText = data.node.text;
@@ -146,7 +112,7 @@ function myMain(evt) {
 
                                 path = currentNodeText + '/';
 
-                                // data.node.parents
+                                // 获取当前select节点+所有父节点的text
                                 // ["j1_13", "j1_3", "#"]
                                 arrParents.forEach(function(item){
                                     if (item !== '#') {
@@ -154,8 +120,6 @@ function myMain(evt) {
                                         path += tmpText + '/';
                                     }
                                 });
-
-                                console.log('path = ' + path);
 
                                 // path = "main/src/"
                                 path = revertPath(path);
@@ -174,7 +138,6 @@ function myMain(evt) {
                                     path: path,
                                     ref_name: repository_ref
                                 }, function(result) {
-                                    console.dir(result);
 
                                     localStorage.setItem('path', path);
 
@@ -253,33 +216,6 @@ function getPrivateToken(strXml) {
     return private_token;
 }
 
-function ajaxGet(url, params, success) {
-    console.log('ajaxGet come in');
-    $.get(url, params, function(data) {
-        console.log('ajaxGet success');
-        success(data);
-    });
-}
-// get repo tree recursively
-// 不能使用递归获取目录结构的方法， 太慢了，浏览器爆掉了
-function getRepoTreeRecursively(url, params, path) {
-    ajaxGet(url, params, function(result) {
-        console.log(result);
-        for (var i = 0; i < result.length; i++) {
-            var item = result[i];
-            if (item.type == 'tree') {
-                console.log(item.name + '这是tree');
-                var path2 = path + '/' + item.name;
-                $.extend(params, {
-                    path: path2
-                })
-                getRepoTreeRecursively(url, params, path2);
-            } else {
-                console.log(item.name + '这不是tree');
-            }
-        };
-    });
-}
 // 处理右侧gitlab的宽度
 function hackStyle() {
     if (location.href.indexOf('gitlab.com') > -1) {
@@ -302,15 +238,6 @@ function isFilesTab() {
     return false;
 }
 
-
-// Helper method createNode(parent, id, text, position).
-// Dynamically adds nodes to the jsTree. Position can be 'first' or 'last'.
-function createNode(parent_node, new_node_id, new_node_text, position) {
-    $('.gitlab-tree nav').jstree('create_node', $(parent_node), {
-        "text": new_node_text,
-        "id": new_node_id
-    }, position, false, false);
-}
 
 // path = "java/main/src/"
 //    --> "src/main/java"
