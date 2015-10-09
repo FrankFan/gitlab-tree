@@ -214,7 +214,6 @@ function myMain(evt) {
                         // });
                     }
 
-                    eventHandlerRegister();
                 });
             });
         }
@@ -276,34 +275,6 @@ function hackStyle() {
         $('nav.main-nav').css('margin-left', '300px');
         $('.container').css('margin-left', '300px');
         $('body').css('overflow', 'hidden');
-    }
-}
-// 绑定事件
-function eventHandlerRegister() {
-    // 1. li 的点击事件
-    $('.gitlab-tree li a').on('click', clickLIHandler);
-}
-// li 的点击事件
-function clickLIHandler(event) {
-    console.log('click li');
-    var liElement = $(event.target).parent();
-    if (liElement.attr('data-type') == 'tree') {
-
-        console.log('发起请求');
-        var path = liElement.attr('data-name');
-        $.get(apiRepoTree, {
-            private_token: private_token,
-            id: project_id,
-            path: path,
-            ref_name: repository_ref
-        }, function(result) {
-            console.dir(result);
-            result.forEach(function(item) {
-                var newLi = '<li data-type="' + item.type + '" data-name="' + item.name + '">' + item.name + '</li>';
-                liElement.append(newLi);
-            });
-        });
-        return false;
     }
 }
 
