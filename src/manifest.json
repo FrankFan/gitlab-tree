@@ -10,20 +10,22 @@
     "storage"
   ],
   "icons": {
-    "16": "gitlab.png",
-    "48": "gitlab.png",
-    "128": "gitlab.png"
+    "16": "imgs/gitlab.png",
+    "48": "imgs/gitlab.png",
+    "128": "imgs/gitlab.png"
   },
   "content_scripts": [
     {
       "matches": ["https://gitlab.com/*", "http://gitlab.lujs.cn/*"],
-      "js": ["jquery.js", 
-             "jstree.js", 
-             "jquery.pjax.js", 
-             "highlight.min.js",
-             "nprogress.js",
+      "js": ["libs/jquery/jquery.js", 
+             "libs/jstree/jstree.js", 
+             "libs/pjax/jquery.pjax.js", 
+             "libs/highlight/highlight.min.js",
+             "libs/nprogress/nprogress.js",
              "gitlabtree.js"],
-      "css": ["main.css", "nprogress.css", "jstree.css"],
+      "css": ["main.css", 
+              "libs/nprogress/nprogress.css", 
+              "libs/jstree/jstree.css"],
       "run_at": "document_start"
     }
   ]
