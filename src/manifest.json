@@ -17,7 +17,7 @@
   "content_scripts": [
     {
       "matches": ["https://gitlab.com/*", "http://gitlab.lujs.cn/*"],
-      "js": ["jquery.js", "jstree.js", "jquery.pjax.js", "gitlabtree.js"],
+      "js": ["jquery.js", "jstree.js", "jquery.pjax.js", "highlight.min.js", "gitlabtree.js"],
       "css": ["main.css", "jstree.css"],
       "run_at": "document_start"
     }

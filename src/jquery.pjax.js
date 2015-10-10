@@ -80,8 +80,8 @@ function handleClick(event, container, options) {
     return
 
   // Ignore event with default prevented
-  if (event.isDefaultPrevented())
-    return
+  // if (event.isDefaultPrevented())
+  //   return
 
   var defaults = {
     url: link.href,

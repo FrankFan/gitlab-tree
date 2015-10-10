@@ -26,9 +26,9 @@ function myMain(evt) {
             var apiProjects = apiRootUrl;
             apiRepoTree = apiRootUrl + project_id + '/repository/tree';
             var apiFileContent = apiRootUrl + project_id + '/repository/files';
+            
 
             console.log('request apiProjects: ' + apiProjects);
-
 
             // 1. 获取
             $.get(apiProjects, {
@@ -45,6 +45,11 @@ function myMain(evt) {
                     }
                 }
                 console.log('request apiRepoTree: ' + apiRepoTree);
+
+                if (!path_with_namespace) {
+                    console.log('如果path_with_namespace没拿到，再拿一遍');
+                    path_with_namespace = $('.home a').attr('href');    
+                }
 
                 $.get(apiRepoTree, {
                     private_token: private_token,
@@ -179,11 +184,21 @@ function myMain(evt) {
                                 });
 
                                 path = revertPath(path);
+
                                 // http://gitlab.lujs.cn /   mobile/m-web           /blob/   master            /     src/main/webapp/resource/loader.js
                                 var href = originUrl + '/' + path_with_namespace + '/blob/' + repository_ref + '/' + path;
-                                console.log(href);
-console.log(' pjax  4');
-                                window.location.href = href;
+                                console.log('href = ' + href);
+
+                                var snode = $(".gitlab-tree nav").jstree(true).get_node(selectNode, true);
+                                $(snode.find('a'))[0].href = href;
+
+                                // e.preventDefault()
+
+                                var container = $('.content').parent();
+                                container.attr('id', 'myContainer');
+
+                                $(document).pjax('.gitlab-tree nav a', '.file-holder', {fragment:'.file-holder', timeout:9000});
+
                             }
                         });
 
@@ -232,9 +247,12 @@ function hackStyle() {
 }
 
 function enablePJAX() {
-    if ($.support.pjax) {
 
-        console.log('支持 pjax  = ' + $.support.pjax);
+
+
+    // if ($.support.pjax) {
+
+    //     console.log('支持 pjax  = ' + $.support.pjax);
 
         // $(document).on('click', '.gitlab-tree nav a', function(event) {
         //     var container = $('.content').parent();
@@ -258,31 +276,38 @@ function enablePJAX() {
         //     $.pjax.click(event, container)
         // })
 
-        var container = $('.content').parent();
-        container.attr('id', 'myContainer');
-        $(document).pjax('.gitlab-tree nav a', '#myContainer', {
-            fragment: '#myContainer',
-            timeout: 6000
-        });
+        // var container = $('.content').parent();
+        // container.attr('id', 'myContainer');
+        // $(document).pjax('.gitlab-tree nav a', '#myContainer', {
+        //     fragment: '#myContainer',
+        //     timeout: 6000
+        // });
 
-
-
-
-console.log(' pjax  sss');
-        $(document).on('pjax:send', function() {
-            //执行pjax开始，在这里添加要重载的代码，可自行添加loading动画代码。例如你已调用了NProgress，在这里添加 NProgress.start();
-            console.log('pjax:send');
-        });
-        $(document).on('pjax:complete', function() {
-            //执行pjax结束，在这里添加要重载的代码，可自行添加loading动画结束或隐藏代码。例如NProgress的结束代码 NProgress.done();
-            console.log('pjax:complete');
-        });
-console.log(' pjax  ccc');
-    }
+    // }
 
 
 
     $(function() {
+
+        console.log(' dom ready ');
+        $(document).on('pjax:send', function() {
+            //执行pjax开始，在这里添加要重载的代码，可自行添加loading动画代码。例如你已调用了NProgress，在这里添加 NProgress.start();
+            console.log('pjax:send loading...');
+            // $('#loading').show();
+
+        });
+        $(document).on('pjax:complete', function() {
+            //执行pjax结束，在这里添加要重载的代码，可自行添加loading动画结束或隐藏代码。例如NProgress的结束代码 NProgress.done();
+            console.log('pjax:complete');
+            console.log('pjax:complete loaded');
+            $('pre code').each(function(i, block) {
+                hljs.highlightBlock(block);
+            });
+        });
+        $(document).one('pjax:success', function() {
+            console.log('pjax:success');
+        });
+        console.log(' pjax  ccc');
         
         //这是a标签的pjax。#content 表示执行pjax后会发生变化的id，改成你主题的内容主体id或class。timeout是pjax响应时间限制，如果在设定时间内未响应就执行页面转跳，可自由设置。
         // $(document).pjax('a', '#content', {
