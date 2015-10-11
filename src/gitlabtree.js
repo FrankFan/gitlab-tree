@@ -253,6 +253,16 @@ function hackStyle() {
 function enablePJAX() {
 
 
+    $(document).on('pjax:complete', function() {
+        $('pre code').each(function(i, block) {
+            hljs.highlightBlock(block);
+        });
+    });
+
+    $(document).on('pjax:start', function() { NProgress.start(); });
+    $(document).on('pjax:end',   function() { NProgress.done();  });
+
+
 
     // if ($.support.pjax) {
 
@@ -293,30 +303,15 @@ function enablePJAX() {
 
     $(function() {
 
-        // console.log(' dom ready ');
-        $(document).on('pjax:send', function() {
-            //执行pjax开始，在这里添加要重载的代码，可自行添加loading动画代码。例如你已调用了NProgress，在这里添加 NProgress.start();
-            // console.log('pjax:send loading...');
-            // $('#loading').show();
 
-        });
-        $(document).on('pjax:complete', function() {
-            //执行pjax结束，在这里添加要重载的代码，可自行添加loading动画结束或隐藏代码。例如NProgress的结束代码 NProgress.done();
-            // console.log('pjax:complete');
-            // console.log('pjax:complete loaded');
-            $('pre code').each(function(i, block) {
-                hljs.highlightBlock(block);
-            });
-        });
-        $(document).one('pjax:success', function() {
-            // console.log('pjax:success');
-        });
-        // console.log(' pjax  ccc');
+        // $(document).on('pjax:complete', function() {
+        //     $('pre code').each(function(i, block) {
+        //         hljs.highlightBlock(block);
+        //     });
+        // });
 
-        // $(document).on('pjax:start', function() { console.log('pjax:start'); });
-        // $(document).on('pjax:end',   function() { console.log('pjax:end');  });
-        $(document).on('pjax:start', function() { NProgress.start(); });
-        $(document).on('pjax:end',   function() { NProgress.done();  });
+        // $(document).on('pjax:start', function() { NProgress.start(); });
+        // $(document).on('pjax:end',   function() { NProgress.done();  });
         
         //这是a标签的pjax。#content 表示执行pjax后会发生变化的id，改成你主题的内容主体id或class。timeout是pjax响应时间限制，如果在设定时间内未响应就执行页面转跳，可自由设置。
         // $(document).pjax('a', '#content', {
