@@ -123,8 +123,7 @@ function myMain(evt) {
 
                                 path = currentNodeText + '/';
 
-                                // 获取当前select节点+所有父节点的text
-                                // ["j1_13", "j1_3", "#"]
+                                // 获取当前select节点+所有父节点的text  ["j1_13", "j1_3", "#"]
                                 arrParents.forEach(function(item){
                                     if (item !== '#') {
                                         var tmpText = $(".gitlab-tree nav").jstree(true).get_text(item);
@@ -132,13 +131,13 @@ function myMain(evt) {
                                     }
                                 });
 
-                                // path = "main/src/"
+                                // path = "java/main/src/"
                                 path = revertPath(path);
 
 
                                 // 如果已经加载过了，就不要重复加载了
                                 if (localStorage.getItem('path') == path) {
-                                    console.log('the same path, abort');
+                                    console.log('loaded the same path, abort');
                                     return;
                                 }
                                 
@@ -180,8 +179,7 @@ function myMain(evt) {
                                 var path = data.node.text + '/';
                                 var arrParents = data.node.parents;
 
-                                // data.node.parents
-                                // ["j1_13", "j1_3", "#"]
+                                // data.node.parents ["j1_13", "j1_3", "#"]
                                 arrParents.forEach(function(item){
                                     if (item !== '#') {
                                         var tmpText = $(".gitlab-tree nav").jstree(true).get_text(item);
