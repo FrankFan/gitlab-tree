@@ -5,7 +5,8 @@ var private_token,
     repository_ref,
     apiRepoTree,
     path_with_namespace,
-    originUrl;
+    originUrl,
+    $jstree;
 
 window.addEventListener("load", myMain, false);
 
@@ -102,7 +103,7 @@ function myMain(evt) {
                         // }];
 
                         // 实例化一棵树
-                        $('.gitlab-tree nav').jstree({
+                        $jstree = $('.gitlab-tree nav').jstree({
                             'core': {
                                 'data': subTreeData,
                                 'check_callback': true
@@ -110,13 +111,15 @@ function myMain(evt) {
                             plugins : ['wholerow']
                         });
 
-                        $('.gitlab-tree nav').on("changed.jstree", function(e, data) {
-                            var selectNode = $(".gitlab-tree nav").jstree('get_selected');
+                        // clickTagA();
+
+                        $jstree.on("changed.jstree", function(e, data) {
+                            var selectNode = $jstree.jstree('get_selected');
 
                             if (data && data.node && data.node.data == 'tree') {
                                 var path = data.node.text;
                                 var currentNodeId = data.node.id;
-                                var parentNode = $(".gitlab-tree nav").jstree(true).get_parent(currentNodeId);
+                                var parentNode = $jstree.jstree(true).get_parent(currentNodeId);
 
                                 // 获取select节点+ 父节点的text
                                 var currentNodeText = data.node.text;
@@ -127,7 +130,7 @@ function myMain(evt) {
                                 // 获取当前select节点+所有父节点的text  ["j1_13", "j1_3", "#"]
                                 arrParents.forEach(function(item){
                                     if (item !== '#') {
-                                        var tmpText = $(".gitlab-tree nav").jstree(true).get_text(item);
+                                        var tmpText = $jstree.jstree(true).get_text(item);
                                         path += tmpText + '/';
                                     }
                                 });
@@ -184,22 +187,30 @@ function myMain(evt) {
                                     });
 
                                     nodesDisplay.forEach(function(item) {
-                                        $(".gitlab-tree nav").jstree(true).create_node(selectNode, item, 'last');
+                                        $jstree.jstree(true).create_node(selectNode, item, 'last');
                                     });
                                     
                                     // $(".gitlab-tree nav").jstree(true).open_all();
                                     // $(".gitlab-tree nav").jstree(true).close_all();
-                                    $(".gitlab-tree nav").jstree(true).open_node(selectNode);
+                                    $jstree.jstree(true).open_node(selectNode);
 
                                 });
                             } else { // blob
+
+                                console.log('blob');
+                                
+                                // clickTagA(data);
+
+                                // e.preventDefault();
+                                // e.stopPropagation();
+
                                 var path = data.node.text + '/';
                                 var arrParents = data.node.parents;
 
                                 // data.node.parents ["j1_13", "j1_3", "#"]
                                 arrParents.forEach(function(item){
                                     if (item !== '#') {
-                                        var tmpText = $(".gitlab-tree nav").jstree(true).get_text(item);
+                                        var tmpText = $jstree.jstree(true).get_text(item);
                                         path += tmpText + '/';
                                     }
                                 });
@@ -210,23 +221,18 @@ function myMain(evt) {
                                 var href = originUrl + '/' + path_with_namespace + '/blob/' + repository_ref + '/' + path;
                                 console.log('href = ' + href);
 
-                                var snode = $(".gitlab-tree nav").jstree(true).get_node(selectNode, true);
+                                var snode = $jstree.jstree(true).get_node(selectNode, true);
                                 $(snode.find('a'))[0].href = href;
-
-                                // e.preventDefault()
-
-                                var container = $('.content').parent();
-                                container.attr('id', 'myContainer');
 
                                 $(document).pjax('.gitlab-tree nav a', '#tree-content-holder', {fragment:'#tree-content-holder', timeout:9000});
 
                             }
                         });
 
-                        // $('.gitlab-tree nav').on("select_node.jstree", function(e, data) {
-                        //     console.log(e);
+                        // $jstree.on("select_node.jstree", function(e, data) {
+
                         //     console.log(data);
-                        //     var selectNode = $(".gitlab-tree nav").jstree('get_selected');
+                        //     var selectNode = $jstree.jstree('get_selected');
                         //     var path = data.node.text + '/';
 
                         //     var type = data.node.data;
@@ -236,7 +242,7 @@ function myMain(evt) {
                         //         // data.node.parents ["j1_13", "j1_3", "#"]
                         //         arrParents.forEach(function(item){
                         //             if (item !== '#') {
-                        //                 var tmpText = $(".gitlab-tree nav").jstree(true).get_text(item);
+                        //                 var tmpText = $jstree.jstree(true).get_text(item);
                         //                 path += tmpText + '/';
                         //             }
                         //         });
@@ -247,7 +253,7 @@ function myMain(evt) {
                         //         var href = originUrl + '/' + path_with_namespace + '/blob/' + repository_ref + '/' + path;
                         //         console.log('href = ' + href);
 
-                        //         var snode = $(".gitlab-tree nav").jstree(true).get_node(selectNode, true);
+                        //         var snode = $jstree.jstree(true).get_node(selectNode, true);
                         //         $(snode.find('a'))[0].href = href;
 
                         //         // e.preventDefault()
@@ -318,6 +324,18 @@ function handlePJAX() {
         $(document).on('pjax:start', function() { NProgress.start(); });
         $(document).on('pjax:end',   function() { NProgress.done();  });
     }
+}
+
+function clickTagA(data) {
+    $('.gitlab-tree nav a').off('click').on('click', function(event) {
+        var $target = $(event.target);
+        
+        if ($target.find('i').hasClass('jstree-file') === true) {
+            console.log('click a file');
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    });
 }
 
 // 判断当前是否是Files Tab
