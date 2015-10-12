@@ -324,8 +324,8 @@ function hackStyle() {
     } else {
         // $('header.navbar').css('margin-left', '300px');
         // $('nav.main-nav').css('margin-left', '300px');
-        $('.container').css('padding-left', '300px');
-        $('body').css('overflow', 'hidden');
+        // $('.container').css('padding-left', '300px');
+        // $('body').css('overflow', 'hidden');
     }
 }
 
@@ -429,11 +429,12 @@ function createBtn() {
 
 function hideGitlabTree() {
     $('.gitlab-tree').hide();
-    $('.container').css('padding-left', '0');
+    // $('.container').css('padding-left', '0');
+    // todo: 如果屏幕宽度很窄，就需要添加padding-left，如果大于某个临界值，就不需要添加padding-left.
 }
 
 function showGitlabTree() {
     $('.gitlab-tree').show();
-    $('.container').css('padding-left', '300px');
+    // $('.container').css('padding-left', '300px');
 }
 
