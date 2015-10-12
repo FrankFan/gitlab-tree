@@ -35,6 +35,7 @@ function myMain(evt) {
             
 
             console.log('request apiProjects: ' + apiProjects);
+            localStorage.removeItem('loadedDirs');
 
             // 1. 获取
             $.get(apiProjects, {
@@ -68,7 +69,7 @@ function myMain(evt) {
                     if (isFilesTab()) {
 
                         // 创建一个container
-                        var htmlTemplate = '<div class="gitlab-tree"><nav>';
+                        var htmlTemplate = '<div class="gitlab-tree"><header>这是header</header><nav>';
                         htmlTemplate += '</nav></div>';
                         $('body').append(htmlTemplate);
 
@@ -81,7 +82,7 @@ function myMain(evt) {
                                 singleObj.children = [];
                                 singleObj.data = 'tree';
                             } else if (item.type === 'blob') {
-                                singleObj.icon = 'icon-file';
+                                singleObj.icon = 'jstree-file';
                                 singleObj.data = 'blob';
                             }
 
@@ -136,7 +137,12 @@ function myMain(evt) {
 
 
                                 // 如果已经加载过了，就不要重复加载了
-                                if (localStorage.getItem('path') == path) {
+                                var arrClickedDir = localStorage.getItem('loadedDirs');
+                                if (arrClickedDir) {
+                                    arrClickedDir = arrClickedDir.split(',');
+                                }
+
+                                if (arrClickedDir && arrClickedDir.indexOf(path) > -1) {
                                     console.log('loaded the same path, abort');
                                     return;
                                 }
@@ -149,7 +155,17 @@ function myMain(evt) {
                                     ref_name: repository_ref
                                 }, function(result) {
 
-                                    localStorage.setItem('path', path);
+                                    var arrClickedDir = localStorage.getItem('loadedDirs');
+                                    if (arrClickedDir) {
+                                        arrClickedDir = arrClickedDir.split(',');
+                                        arrClickedDir.push(path);
+                                    }
+
+                                    if (arrClickedDir && Array.isArray(arrClickedDir)) {
+                                        localStorage.setItem('loadedDirs', arrClickedDir.join(','));    
+                                    } else {
+                                        localStorage.setItem('loadedDirs', path);
+                                    }
 
                                     var nodesDisplay = [];
                                     result.forEach(function(item) {
@@ -160,7 +176,7 @@ function myMain(evt) {
                                             singleObj.children = [];
                                             singleObj.data = 'tree';
                                         } else if (item.type === 'blob') {
-                                            singleObj.icon = 'icon-file';
+                                            singleObj.icon = 'jstree-file';
                                             singleObj.data = 'blob';
                                         }
 
@@ -172,6 +188,7 @@ function myMain(evt) {
                                     });
                                     
                                     // $(".gitlab-tree nav").jstree(true).open_all();
+                                    // $(".gitlab-tree nav").jstree(true).close_all();
                                     $(".gitlab-tree nav").jstree(true).open_node(selectNode);
 
                                 });
@@ -189,7 +206,7 @@ function myMain(evt) {
 
                                 path = revertPath(path);
 
-                                // http://gitlab.lujs.cn /   mobile/m-web           /blob/   master            /     src/main/webapp/resource/loader.js
+                                // http://gitlab.xxx.cn /   mobile/m-web           /blob/   master            /     src/main/webapp/resource/loader.js
                                 var href = originUrl + '/' + path_with_namespace + '/blob/' + repository_ref + '/' + path;
                                 console.log('href = ' + href);
 
@@ -284,7 +301,7 @@ function hackStyle() {
     } else {
         // $('header.navbar').css('margin-left', '300px');
         // $('nav.main-nav').css('margin-left', '300px');
-        $('.container').css('margin-left', '300px');
+        $('.container').css('padding-left', '300px');
         $('body').css('overflow', 'hidden');
     }
 }
