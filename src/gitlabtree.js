@@ -73,7 +73,7 @@ function myMain(evt) {
                         $('body').append(htmlTemplate);
 
                         // 构建一颗子树
-                        var dataDisplay = [];
+                        var subTreeData = [];
                         result.forEach(function(item) {
                             var singleObj = {};
                             singleObj.text = item.name;
@@ -85,10 +85,10 @@ function myMain(evt) {
                                 singleObj.data = 'blob';
                             }
 
-                            dataDisplay.push(singleObj);
+                            subTreeData.push(singleObj);
                         });
 
-                        // var dataDisplay = [{
+                        // var subTreeData = [{
                         //     "text": "Root node",
                         //     "children": [{
                         //         "text": "Child node 1"
@@ -103,7 +103,7 @@ function myMain(evt) {
                         // 实例化一棵树
                         $('.gitlab-tree nav').jstree({
                             'core': {
-                                'data': dataDisplay,
+                                'data': subTreeData,
                                 'check_callback': true
                             },
                             plugins : ['wholerow']
@@ -206,6 +206,44 @@ function myMain(evt) {
                             }
                         });
 
+                        // $('.gitlab-tree nav').on("select_node.jstree", function(e, data) {
+                        //     console.log(e);
+                        //     console.log(data);
+                        //     var selectNode = $(".gitlab-tree nav").jstree('get_selected');
+                        //     var path = data.node.text + '/';
+
+                        //     var type = data.node.data;
+                        //     if (type === 'blob') {
+                        //         var arrParents = data.node.parents;
+
+                        //         // data.node.parents ["j1_13", "j1_3", "#"]
+                        //         arrParents.forEach(function(item){
+                        //             if (item !== '#') {
+                        //                 var tmpText = $(".gitlab-tree nav").jstree(true).get_text(item);
+                        //                 path += tmpText + '/';
+                        //             }
+                        //         });
+
+                        //         path = revertPath(path);
+
+                        //         // http://gitlab.lujs.cn /   mobile/m-web           /blob/   master            /     src/main/webapp/resource/loader.js
+                        //         var href = originUrl + '/' + path_with_namespace + '/blob/' + repository_ref + '/' + path;
+                        //         console.log('href = ' + href);
+
+                        //         var snode = $(".gitlab-tree nav").jstree(true).get_node(selectNode, true);
+                        //         $(snode.find('a'))[0].href = href;
+
+                        //         // e.preventDefault()
+
+                        //         var container = $('.content').parent();
+                        //         container.attr('id', 'myContainer');
+
+                        //         $(document).pjax('.gitlab-tree nav a', '#tree-content-holder', {fragment:'#tree-content-holder', timeout:9000});
+                        //     }
+
+                        // });
+
+
                         hackStyle();
 
                         handlePJAX();
@@ -216,6 +254,7 @@ function myMain(evt) {
         }
     });
 }
+
 // 获取private_token
 function getPrivateToken(strXml) {
     var arrXmlNode = strXml.toString().split(';')
