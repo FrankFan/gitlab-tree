@@ -113,7 +113,8 @@ function myMain(evt) {
 
                         // clickTagA();
 
-                        $jstree.on("changed.jstree", function(e, data) {
+                        // $jstree.on("changed.jstree", function(e, data) {
+                        $jstree.on("select_node.jstree", function(e, data) {
                             var selectNode = $jstree.jstree('get_selected');
 
                             if (data && data.node && data.node.data == 'tree') {
