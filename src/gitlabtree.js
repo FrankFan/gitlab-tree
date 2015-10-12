@@ -69,10 +69,24 @@ function myMain(evt) {
                     
                     if (isFilesTab()) {
 
+                        path_with_namespace
+
                         // 创建一个container
-                        var htmlTemplate = '<div class="gitlab-tree"><header>这是header</header><nav>';
+                        // var htmlTemplate = '<div class="gitlab-tree"><header><h1 class="title"><span><a href="/groups/mobile">mobile</a> / m-web</span></h1></header><nav>';
+                        var htmlTemplate = '<div class="gitlab-tree">\
+                                                <header>\
+                                                    <div class="head">\
+                                                        <div class="info"><a href="/groups/mobile" target="_blank"></a> / <span></span></div>\
+                                                        <span class="branch"></span>\
+                                                        <a class="gitlabtree_toggle toggle-btn icon-white icon-arraw-left"><div class="loader"></div><span></span></a>\
+                                                    </div>\
+                                                </header><nav>';
                         htmlTemplate += '</nav></div>';
                         $('body').append(htmlTemplate);
+
+                        $('.gitlab-tree div.info a').text(path_with_namespace.split('/')[0]);
+                        $('.gitlab-tree div.info span').text(path_with_namespace.split('/')[1]);
+                        $('.gitlab-tree span.branch').text(repository_ref);
 
                         // 构建一颗子树
                         var subTreeData = [];
