@@ -22,7 +22,7 @@
     font-size: 16px;
     color: #fff;
     padding-left: 30px;
-    padding-top: 6px;
+    padding-top: 3px;
 }
 
 .gitlab-tree div.head {
@@ -37,7 +37,7 @@
     color: #fff;
 }
 
-.gitlab-tree .toggle-btn {
+.toggle-btn {
     position: relative;
     display: inline-block;
     padding: 6px 12px;
@@ -48,7 +48,7 @@
     white-space: nowrap;
     vertical-align: middle;
     cursor: pointer;
-    background-color: #eee;
+    background-color: #446e9b;
     background-image: -webkit-linear-gradient(#fcfcfc, #eee);
     background-image: linear-gradient(#fcfcfc, #eee);
     border: 1px solid #446e9b;
@@ -58,7 +58,6 @@
     -ms-user-select: none;
     user-select: none;
     -webkit-appearance: none;
-    background-color: #446e9b;
 }
 
 a.gitlabtree_toggle {
@@ -69,11 +68,11 @@ a.gitlabtree_toggle {
 
 }
 
-.gitlab-tree .icon-white {
+.icon-white {
     background-image: url("http://images2015.cnblogs.com/blog/282019/201510/282019-20151012205005819-1752203324.png");
 }
 
-.gitlab-tree .icon-arraw-left {
+.icon-arraw-left {
     background-position: -425px -67px;
 }
 
@@ -88,4 +87,18 @@ a.gitlabtree_toggle {
 .gitlab-tree li a {
     color: #446E9B !important;
     font-size: 13px;
+}
+
+.gitlab-tree-btn {
+    height: 18px;
+    width: 15px;
+    background-color: #474d57;
+    position: fixed;
+    left: 10px;
+    top: 5px;
+    z-index: 2000;
+    border-radius: 3px;
+    background-position: -455px -70px;
+    cursor: pointer;
+    margin: 10px;
 }

@@ -285,6 +285,8 @@ function myMain(evt) {
                         hackStyle();
 
                         handlePJAX();
+
+                        handleToggleBtn();
                     }
 
                 });
@@ -402,3 +404,36 @@ function removeElement(index, array) {
     }
     return array;
 }
+
+function handleToggleBtn() {
+    $('.gitlab-tree header a.toggle-btn').on('click', function() {
+        hideGitlabTree();
+        createBtn();
+    });
+
+    
+}
+
+function createBtn() {
+    if ($('.gitlab-tree-btn').length === 0) {
+        var htmlTemplate = '<div class="gitlab-tree-btn icon-white icon-arraw-left"></div>';
+        $('body').append(htmlTemplate);  
+
+        $('.gitlab-tree-btn').on('click', function() {
+            showGitlabTree();
+        });  
+    } else {
+        $('.gitlab-tree-btn').show();
+    }
+}
+
+function hideGitlabTree() {
+    $('.gitlab-tree').hide();
+    $('.container').css('padding-left', '0');
+}
+
+function showGitlabTree() {
+    $('.gitlab-tree').show();
+    $('.container').css('padding-left', '300px');
+}
+
