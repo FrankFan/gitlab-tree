@@ -6,7 +6,6 @@
   "description": "Chrome extension to display Gitlab code in tree format",
   "homepage_url": "https://github.com/FrankFan/gitlab-tree",
   "permissions": [
-    "tabs",
     "storage"
   ],
   "icons": {
