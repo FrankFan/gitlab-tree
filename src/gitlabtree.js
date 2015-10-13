@@ -13,21 +13,14 @@ window.addEventListener("load", myMain, false);
 function myMain(evt) {
     $(function() {
         if ($('head script[type="text/javascript"]').contents()[0]) {
+            
             private_token = getPrivateToken($('head script[type="text/javascript"]').contents()[0]['wholeText']);
-            if (private_token) {
-                private_token = private_token.replace(/\"/g, '');
-            } else{
-                console.log('token获取失败');
-                return;
-            }
             
             project_id = $('#project_id').val();
             repository_ref = $('#repository_ref').val();
 
             var repoName;
             originUrl = window.location.origin;
-            // var apiRootUrl = 'https://gitlab.com/api/v3/projects/';
-            // var apiRootUrl = 'http://gitlab.lujs.cn/api/v3/projects/';
 
             var apiRootUrl = originUrl + '/api/v3/projects/';
             var apiProjects = apiRootUrl;
@@ -38,7 +31,7 @@ function myMain(evt) {
             console.log('request apiProjects: ' + apiProjects);
             localStorage.removeItem('loadedDirs');
 
-            // 1. 获取
+            // 1. 获取所需变量
             $.get(apiProjects, {
                 private_token: private_token
             }, function(repos) {
@@ -63,7 +56,7 @@ function myMain(evt) {
                     }
                 }
 
-
+                // 2. 获取repo代码目录结构
                 $.get(apiRepoTree, {
                     private_token: private_token,
                     id: project_id,
@@ -74,68 +67,13 @@ function myMain(evt) {
                     
                     if (isFilesTab()) {
 
-                        // 创建一个container
-                        // var htmlTemplate = '<div class="gitlab-tree"><header><h1 class="title"><span><a href="/groups/mobile">mobile</a> / m-web</span></h1></header><nav>';
-                        var htmlTemplate = '<div class="gitlab-tree">\
-                                                <header>\
-                                                    <div class="head">\
-                                                        <div class="info">\
-                                                        <i class="fa fa-lock"></i><a href="/groups/mobile" target="_blank"></a> / <span></span></div>\
-                                                        <i class="fa fa-code-fork"></i><span class="branch"></span>\
-                                                        <a class="gitlabtree_toggle toggle-btn icon-white icon-arraw-left toggle-btn-color"><div class="loader icon-loading" style="display: none;"></div><span></span></a>\
-                                                    </div>\
-                                                </header><nav>';
-                        htmlTemplate += '</nav></div>';
-                        $('body').append(htmlTemplate);
+                        createGitlabTreeContainer();
 
-                        $('.gitlab-tree div.info a').text(path_with_namespace.split('/')[0]);
-                        $('.gitlab-tree div.info span').text(path_with_namespace.split('/')[1]);
-                        $('.gitlab-tree span.branch').text(repository_ref);
+                        createGitlabTree(result);
 
-                        // 构建一颗子树
-                        var subTreeData = [];
-                        result.forEach(function(item) {
-                            var singleObj = {};
-                            singleObj.text = item.name;
-                            if (item.type === 'tree') {
-                                singleObj.children = [];
-                                singleObj.data = 'tree';
-                                singleObj.icon = 'fa fa-folder';
-                            } else if (item.type === 'blob') {
-                                singleObj.icon = 'fa fa-file-o';
-                                singleObj.data = 'blob';
-                            }
-
-                            subTreeData.push(singleObj);
-                        });
-
-                        // var subTreeData = [{
-                        //     "text": "Root node",
-                        //     "children": [{
-                        //         "text": "Child node 1"
-                        //     }, {
-                        //         "text": "Child node 2",
-                        //         "children": [{
-                        //             "text": "这是子树的child"
-                        //         }]
-                        //     }]
-                        // }];
-
-                        // 实例化一棵树
-                        $jstree = $('.gitlab-tree nav').jstree({
-                            'core': {
-                                'data': subTreeData,
-                                'check_callback': true
-                            },
-                            plugins : ['wholerow']
-                        });
-
-                        // clickTagA();
-
-                        // $jstree.on("changed.jstree", function(e, data) {
                         $jstree.on("select_node.jstree", function(e, data) {
                             var selectNode = $jstree.jstree('get_selected');
-console.log('select_node.jstree');
+                            console.log('select_node.jstree');
                             if (data && data.node && data.node.data == 'tree') {
                                 var path = data.node.text;
                                 var currentNodeId = data.node.id;
@@ -218,88 +156,15 @@ console.log('select_node.jstree');
                                 });
                             } else { // blob
 
-                                console.log('blob');
-                                
-                                // clickTagA(data);
+                                var href = getClickedFileFullPath(data);
 
-                                // e.preventDefault();
-                                // e.stopPropagation();
-
-                                var path = data.node.text + '/';
-                                var arrParents = data.node.parents;
-
-                                // data.node.parents ["j1_13", "j1_3", "#"]
-                                arrParents.forEach(function(item){
-                                    if (item !== '#') {
-                                        var tmpText = $jstree.jstree(true).get_text(item);
-                                        path += tmpText + '/';
-                                    }
-                                });
-
-                                path = revertPath(path);
-
-                                // http://gitlab.xxx.cn /   mobile/m-web           /blob/   master            /     src/main/webapp/resource/loader.js
-                                var href = originUrl + '/' + path_with_namespace + '/blob/' + repository_ref + '/' + path;
-                                console.log('href = ' + href);
-
+                                // fix pjax link.href can't contains '#'
                                 var snode = $jstree.jstree(true).get_node(selectNode, true);
                                 $(snode.find('a'))[0].href = href;
-$(snode).off('click');
-snode.parent().off('click');
+                                
                                 $(document).pjax('.gitlab-tree nav a.jstree-clicked', '#tree-content-holder', {fragment:'#tree-content-holder', timeout:9000});
-
-                                // $(snode.find('a')).on('click', function(event) {
-                                //     $.pjax.click(event, '#tree-content-holder')
-                                // });
-
-                                // $(document).pjax($('.gitlab-tree nav a.jstree-clicked')[0], '#tree-content-holder');
-
-                                // $.pjax({
-                                //     url: href,
-                                //     container: '#tree-content-holder',
-                                //     timeout: 9000 // pick a suitable timeout
-                                // });
-
                             }
                         });
-
-                        // $jstree.on("select_node.jstree", function(e, data) {
-
-                        //     console.log(data);
-                        //     var selectNode = $jstree.jstree('get_selected');
-                        //     var path = data.node.text + '/';
-
-                        //     var type = data.node.data;
-                        //     if (type === 'blob') {
-                        //         var arrParents = data.node.parents;
-
-                        //         // data.node.parents ["j1_13", "j1_3", "#"]
-                        //         arrParents.forEach(function(item){
-                        //             if (item !== '#') {
-                        //                 var tmpText = $jstree.jstree(true).get_text(item);
-                        //                 path += tmpText + '/';
-                        //             }
-                        //         });
-
-                        //         path = revertPath(path);
-
-                        //         // http://gitlab.lujs.cn /   mobile/m-web           /blob/   master            /     src/main/webapp/resource/loader.js
-                        //         var href = originUrl + '/' + path_with_namespace + '/blob/' + repository_ref + '/' + path;
-                        //         console.log('href = ' + href);
-
-                        //         var snode = $jstree.jstree(true).get_node(selectNode, true);
-                        //         $(snode.find('a'))[0].href = href;
-
-                        //         // e.preventDefault()
-
-                        //         var container = $('.content').parent();
-                        //         container.attr('id', 'myContainer');
-
-                        //         $(document).pjax('.gitlab-tree nav a', '#tree-content-holder', {fragment:'#tree-content-holder', timeout:9000});
-                        //     }
-
-                        // });
-
 
                         hackStyle();
 
@@ -330,6 +195,14 @@ function getPrivateToken(strXml) {
             private_token = objXml[key];
         }
     }
+
+    if (private_token) {
+        private_token = private_token.replace(/\"/g, '');
+    } else {
+        console.log('token获取失败');
+        return;
+    }
+
     return private_token;
 }
 
@@ -360,6 +233,7 @@ function handlePJAX() {
     }
 }
 
+// 暂时没用到
 function clickTagA(data) {
     $('.gitlab-tree nav a').off('click').on('click', function(event) {
         var $target = $(event.target);
@@ -420,6 +294,72 @@ function removeElement(index, array) {
         array.length = array.length - 1;
     }
     return array;
+}
+
+function createGitlabTreeContainer() {
+    // 创建一个container
+    var htmlTemplate = '<div class="gitlab-tree">\
+                            <header>\
+                                <div class="head">\
+                                    <div class="info"><i class="fa fa-lock"></i><a href="/groups/mobile" target="_blank"></a> / <span></span></div>\
+                                    <i class="fa fa-code-fork"></i><span class="branch"></span>\
+                                    <a class="gitlabtree_toggle toggle-btn icon-white icon-arraw-left toggle-btn-color"><div class="loader icon-loading" style="display: none;"></div></a>\
+                                </div>\
+                            </header>';
+    htmlTemplate += '<nav></nav></div>';
+    $('body').append(htmlTemplate);
+
+    $('.gitlab-tree div.info a').text(path_with_namespace.split('/')[0]);
+    $('.gitlab-tree div.info span').text(path_with_namespace.split('/')[1]);
+    $('.gitlab-tree span.branch').text(repository_ref);
+}
+
+function createGitlabTree(result) {
+    // 构建一颗子树
+    var subTreeData = [];
+    result.forEach(function(item) {
+        var singleObj = {};
+        singleObj.text = item.name;
+        if (item.type === 'tree') {
+            singleObj.children = [];
+            singleObj.data = 'tree';
+            singleObj.icon = 'fa fa-folder';
+        } else if (item.type === 'blob') {
+            singleObj.icon = 'fa fa-file-o';
+            singleObj.data = 'blob';
+        }
+
+        subTreeData.push(singleObj);
+    });
+
+    // 实例化一棵树
+    $jstree = $('.gitlab-tree nav').jstree({
+        'core': {
+            'data': subTreeData,
+            'check_callback': true
+        },
+        plugins: ['wholerow']
+    });
+}
+
+function getClickedFileFullPath(data) {
+    var path = data.node.text + '/';
+    var arrParents = data.node.parents;
+
+    // data.node.parents ["j1_13", "j1_3", "#"]
+    arrParents.forEach(function(item) {
+        if (item !== '#') {
+            var tmpText = $jstree.jstree(true).get_text(item);
+            path += tmpText + '/';
+        }
+    });
+
+    path = revertPath(path);
+
+    // http://gitlab.xxx.cn /   mobile/m-web           /blob/   master            /     src/main/webapp/resource/loader.js
+    var href = originUrl + '/' + path_with_namespace + '/blob/' + repository_ref + '/' + path;
+
+    return href;
 }
 
 function handleToggleBtn() {

@@ -5,6 +5,7 @@
   [3]: http://doc.gitlab.com/ce/api/repository_files.html
   [4]: https://gitlab.com/gitlab-org/gitlab-ce/tree/master#README
   [5]: http://gxxsite.com/content/view/id/150.html
+  [6]: http://www.ueffort.com/pjax-ji-shu/
 
 gitlab官方没有找到对应的javascript API，只好自己写一套了。
 
