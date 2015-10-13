@@ -78,7 +78,7 @@ function myMain(evt) {
                                                     <div class="head">\
                                                         <div class="info"><a href="/groups/mobile" target="_blank"></a> / <span></span></div>\
                                                         <span class="branch"></span>\
-                                                        <a class="gitlabtree_toggle toggle-btn icon-white icon-arraw-left"><div class="loader"></div><span></span></a>\
+                                                        <a class="gitlabtree_toggle toggle-btn icon-white icon-arraw-left toggle-btn-color"><div class="loader icon-loading" style="display: none;"></div><span></span></a>\
                                                     </div>\
                                                 </header><nav>';
                         htmlTemplate += '</nav></div>';
@@ -240,6 +240,11 @@ function myMain(evt) {
                                 $(snode.find('a'))[0].href = href;
 
                                 $(document).pjax('.gitlab-tree nav a', '#tree-content-holder', {fragment:'#tree-content-holder', timeout:9000});
+                                // $.pjax({
+                                //     url: href,
+                                //     container: '#tree-content-holder',
+                                //     timeout: 9000 // pick a suitable timeout
+                                // });
 
                             }
                         });
@@ -324,8 +329,11 @@ function hackStyle() {
     } else {
         // $('header.navbar').css('margin-left', '300px');
         // $('nav.main-nav').css('margin-left', '300px');
-        // $('.container').css('padding-left', '300px');
-        // $('body').css('overflow', 'hidden');
+        var screenWidth = window.innerWidth;
+        if (screenWidth < 768) {
+            $('.container').css('padding-left', '300px');    
+        }
+        $('body').css('overflow', 'hidden');
     }
 }
 
@@ -415,26 +423,57 @@ function handleToggleBtn() {
 }
 
 function createBtn() {
-    if ($('.gitlab-tree-btn').length === 0) {
-        var htmlTemplate = '<div class="gitlab-tree-btn icon-white icon-arraw-left"></div>';
+    if ($('.open-tree').length === 0) {
+        // var htmlTemplate = '<div class="gitlab-tree-btn icon-white icon-arraw-left toggle-btn-color"></div>';
+        var htmlTemplate = '<div class="open-tree">&gt;</div>';
         $('body').append(htmlTemplate);  
 
-        $('.gitlab-tree-btn').on('click', function() {
+        $('.open-tree').on('click', function() {
             showGitlabTree();
         });  
     } else {
-        $('.gitlab-tree-btn').show();
+        $('.open-tree').show();
     }
 }
 
 function hideGitlabTree() {
     $('.gitlab-tree').hide();
-    // $('.container').css('padding-left', '0');
-    // todo: 如果屏幕宽度很窄，就需要添加padding-left，如果大于某个临界值，就不需要添加padding-left.
+    updateLayoutUI('hide');
 }
 
 function showGitlabTree() {
     $('.gitlab-tree').show();
-    // $('.container').css('padding-left', '300px');
+    updateLayoutUI('show');
 }
+
+function updateLayoutUI(operateType) {
+    var screenWidth = window.innerWidth;
+
+    if (operateType === 'hide') {
+        if (screenWidth < 768) {
+            $('.container').css('padding-left', '0');
+        } else {
+            $('.container').css('padding-left', '0');
+        }
+    } else {
+        if (screenWidth < 900) {
+            $('.container').css('padding-left', '300px');
+        } else {
+            $('.container').css('padding-left', '0');
+        }
+    }
+}
+
+
+function showLoading() {
+    $('.loader').show();
+    $('.toggle-btn').removeClass('toggle-btn-color');
+}
+
+function hideLoading() {
+    $('.loader').hide();
+    $('.toggle-btn').addClass('toggle-btn-color');
+}
+
+
 
