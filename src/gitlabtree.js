@@ -5,6 +5,8 @@ var private_token,
     repository_ref,
     apiRepoTree,
     path_with_namespace,
+    repoName,
+    apiProjects,
     originUrl,
     $jstree;
 
@@ -13,23 +15,12 @@ window.addEventListener("load", myMain, false);
 function myMain(evt) {
     $(function() {
         if ($('head script[type="text/javascript"]').contents()[0]) {
-            
+
             private_token = getPrivateToken($('head script[type="text/javascript"]').contents()[0]['wholeText']);
+
+
+            initVariables();
             
-            project_id = $('#project_id').val();
-            repository_ref = $('#repository_ref').val();
-
-            var repoName;
-            originUrl = window.location.origin;
-
-            var apiRootUrl = originUrl + '/api/v3/projects/';
-            var apiProjects = apiRootUrl;
-            apiRepoTree = apiRootUrl + project_id + '/repository/tree';
-            var apiFileContent = apiRootUrl + project_id + '/repository/files';
-            
-
-            console.log('request apiProjects: ' + apiProjects);
-            localStorage.removeItem('loadedDirs');
 
             // 1. 获取所需变量
             $.get(apiProjects, {
@@ -204,6 +195,21 @@ function getPrivateToken(strXml) {
     }
 
     return private_token;
+}
+
+function initVariables() {
+    project_id = $('#project_id').val();
+    repository_ref = $('#repository_ref').val();
+
+    // var repoName,
+    originUrl = window.location.origin;
+
+    var apiRootUrl = originUrl + '/api/v3/projects/';
+    apiProjects = apiRootUrl;
+    apiRepoTree = apiRootUrl + project_id + '/repository/tree';
+    var apiFileContent = apiRootUrl + project_id + '/repository/files';
+
+    localStorage.removeItem('loadedDirs');
 }
 
 // 处理右侧gitlab的宽度
@@ -402,7 +408,7 @@ function updateLayoutUI(operateType) {
             $('.container').css('padding-left', '0');
         }
     } else {
-        if (screenWidth < 900) {
+        if (screenWidth < 1000) {
             $('.container').css('padding-left', '300px');
         } else {
             $('.container').css('padding-left', '0');
