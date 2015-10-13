@@ -56,7 +56,11 @@ function myMain(evt) {
 
                 if (!path_with_namespace) {
                     console.log('如果path_with_namespace没拿到，再拿一遍');
-                    path_with_namespace = $('.home a').attr('href');    
+                    path_with_namespace = $('.home a').attr('href');
+                    var firstChar = path_with_namespace.substring(0,1);
+                    if (firstChar && firstChar === '/') {
+                        path_with_namespace = path_with_namespace.substr(1);
+                    }
                 }
 
                 $.get(apiRepoTree, {
@@ -68,8 +72,6 @@ function myMain(evt) {
                     console.log('request apiRepoTree result.length = ' + result.length);
                     
                     if (isFilesTab()) {
-
-                        path_with_namespace
 
                         // 创建一个container
                         // var htmlTemplate = '<div class="gitlab-tree"><header><h1 class="title"><span><a href="/groups/mobile">mobile</a> / m-web</span></h1></header><nav>';
