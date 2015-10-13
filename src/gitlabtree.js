@@ -63,6 +63,7 @@ function myMain(evt) {
                     }
                 }
 
+
                 $.get(apiRepoTree, {
                     private_token: private_token,
                     id: project_id,
@@ -78,8 +79,9 @@ function myMain(evt) {
                         var htmlTemplate = '<div class="gitlab-tree">\
                                                 <header>\
                                                     <div class="head">\
-                                                        <div class="info"><a href="/groups/mobile" target="_blank"></a> / <span></span></div>\
-                                                        <span class="branch"></span>\
+                                                        <div class="info">\
+                                                        <i class="fa fa-lock"></i><a href="/groups/mobile" target="_blank"></a> / <span></span></div>\
+                                                        <i class="fa fa-code-fork"></i><span class="branch"></span>\
                                                         <a class="gitlabtree_toggle toggle-btn icon-white icon-arraw-left toggle-btn-color"><div class="loader icon-loading" style="display: none;"></div><span></span></a>\
                                                     </div>\
                                                 </header><nav>';
@@ -98,8 +100,9 @@ function myMain(evt) {
                             if (item.type === 'tree') {
                                 singleObj.children = [];
                                 singleObj.data = 'tree';
+                                singleObj.icon = 'fa fa-folder';
                             } else if (item.type === 'blob') {
-                                singleObj.icon = 'jstree-file';
+                                singleObj.icon = 'fa fa-file-o';
                                 singleObj.data = 'blob';
                             }
 
@@ -132,7 +135,7 @@ function myMain(evt) {
                         // $jstree.on("changed.jstree", function(e, data) {
                         $jstree.on("select_node.jstree", function(e, data) {
                             var selectNode = $jstree.jstree('get_selected');
-
+console.log('select_node.jstree');
                             if (data && data.node && data.node.data == 'tree') {
                                 var path = data.node.text;
                                 var currentNodeId = data.node.id;
@@ -195,8 +198,9 @@ function myMain(evt) {
                                         if (item.type === 'tree') {
                                             singleObj.children = [];
                                             singleObj.data = 'tree';
+                                            singleObj.icon = 'fa fa-folder';
                                         } else if (item.type === 'blob') {
-                                            singleObj.icon = 'jstree-file';
+                                            singleObj.icon = 'fa fa-file-o';
                                             singleObj.data = 'blob';
                                         }
 
@@ -240,8 +244,16 @@ function myMain(evt) {
 
                                 var snode = $jstree.jstree(true).get_node(selectNode, true);
                                 $(snode.find('a'))[0].href = href;
+$(snode).off('click');
+snode.parent().off('click');
+                                $(document).pjax('.gitlab-tree nav a.jstree-clicked', '#tree-content-holder', {fragment:'#tree-content-holder', timeout:9000});
 
-                                $(document).pjax('.gitlab-tree nav a', '#tree-content-holder', {fragment:'#tree-content-holder', timeout:9000});
+                                // $(snode.find('a')).on('click', function(event) {
+                                //     $.pjax.click(event, '#tree-content-holder')
+                                // });
+
+                                // $(document).pjax($('.gitlab-tree nav a.jstree-clicked')[0], '#tree-content-holder');
+
                                 // $.pjax({
                                 //     url: href,
                                 //     container: '#tree-content-holder',
@@ -329,12 +341,7 @@ function hackStyle() {
         $('header.navbar').css('margin-left', '230px');
         // $('.content-wrapper').css('margin-left', '160px');
     } else {
-        // $('header.navbar').css('margin-left', '300px');
-        // $('nav.main-nav').css('margin-left', '300px');
-        var screenWidth = window.innerWidth;
-        if (screenWidth < 768) {
-            $('.container').css('padding-left', '300px');    
-        }
+        updateLayoutUI('show');
         $('body').css('overflow', 'hidden');
     }
 }
@@ -357,7 +364,7 @@ function clickTagA(data) {
     $('.gitlab-tree nav a').off('click').on('click', function(event) {
         var $target = $(event.target);
         
-        if ($target.find('i').hasClass('jstree-file') === true) {
+        if ($target.find('i').hasClass('fa fa-file-o') === true) {
             console.log('click a file');
             event.preventDefault();
             event.stopPropagation();
@@ -420,14 +427,11 @@ function handleToggleBtn() {
         hideGitlabTree();
         createBtn();
     });
-
-    
 }
 
 function createBtn() {
     if ($('.open-tree').length === 0) {
-        // var htmlTemplate = '<div class="gitlab-tree-btn icon-white icon-arraw-left toggle-btn-color"></div>';
-        var htmlTemplate = '<div class="open-tree">&gt;</div>';
+        var htmlTemplate = '<div class="open-tree fa fa-angle-right"></div>';
         $('body').append(htmlTemplate);  
 
         $('.open-tree').on('click', function() {
