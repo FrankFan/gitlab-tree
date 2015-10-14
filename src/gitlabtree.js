@@ -38,7 +38,6 @@ function myMain(evt) {
                         path_with_namespace = objRepoInfo.path_with_namespace;
                     }
                 }
-                console.log('request apiRepoTree: ' + apiRepoTree);
 
                 if (!path_with_namespace) {
                     console.log('如果path_with_namespace没拿到，再拿一遍');
@@ -221,11 +220,11 @@ function createGitlabTreeContainer() {
     var htmlTemplate = '<div class="gitlab-tree">\
                             <header>\
                                 <div class="head">\
-                                    <div class="info">
+                                    <div class="info">\
                                         <i class="fa fa-lock"></i><a href="/groups/mobile" target="_blank"></a> / <span></span>\
                                     </div>\
                                     <i class="fa fa-code-fork"></i><span class="branch"></span>\
-                                    <a class="gitlabtree_toggle toggle-btn icon-white icon-arraw-left toggle-btn-color">
+                                    <a class="gitlabtree_toggle toggle-btn icon-white icon-arraw-left toggle-btn-color">\
                                         <div class="loader icon-loading" style="display: none;"></div>\
                                     </a>\
                                 </div>\
