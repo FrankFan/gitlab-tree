@@ -5,7 +5,6 @@ var private_token,
     repository_ref,
     apiRepoTree,
     path_with_namespace,
-    repoName,
     apiProjects,
     originUrl,
     $jstree;
@@ -27,26 +26,8 @@ function myMain(evt) {
             // 1. 获取所需变量
             $.get(apiProjects, {private_token: private_token})
             .done(function(repos){
-                
-                for (var key in repos) {
-                    var objRepoInfo = repos[key];
-                    var path;
-                    if (objRepoInfo.id == project_id) {
 
-                        path = objRepoInfo.path;
-                        repoName = objRepoInfo.name;
-                        path_with_namespace = objRepoInfo.path_with_namespace;
-                    }
-                }
-
-                if (!path_with_namespace) {
-                    console.log('如果path_with_namespace没拿到，再拿一遍');
-                    path_with_namespace = $('.home a').attr('href');
-                    var firstChar = path_with_namespace.substring(0,1);
-                    if (firstChar && firstChar === '/') {
-                        path_with_namespace = path_with_namespace.substr(1);
-                    }
-                }
+                checkRepos(repos);
 
                 // 2. 获取repo代码目录结构
                 $.get(apiRepoTree, {
@@ -109,8 +90,6 @@ function getPrivateToken(strXml) {
 function initVariables() {
     project_id = $('#project_id').val();
     repository_ref = $('#repository_ref').val();
-
-    // var repoName,
     originUrl = window.location.origin;
 
     var apiRootUrl = originUrl + '/api/v3/projects/';
@@ -456,4 +435,39 @@ function hideSpinner() {
     $('.open-tree i').removeClass('fa fa-spinner fa-spin');
 }
 
+function checkRepos(repos) {
+    if (repos && repos.length > 0) {
+        for (var key in repos) {
+            var objRepoInfo = repos[key];
+            var path,
+                repoName;
+            if (objRepoInfo.id == project_id) {
 
+                path = objRepoInfo.path;
+                repoName = objRepoInfo.name;
+                path_with_namespace = objRepoInfo.path_with_namespace;
+            }
+        }
+    }
+
+    if (path_with_namespace) {
+        console.log('如果path_with_namespace没拿到，再拿一遍');
+        path_with_namespace = $('.home a').attr('href');
+        var firstChar = path_with_namespace.substring(0, 1);
+        if (firstChar && firstChar === '/') {
+            path_with_namespace = path_with_namespace.substr(1);
+        }
+    } else {
+        quit();
+    }
+
+    if (!repository_ref) {
+        quit();
+    }
+}
+
+function quit() {
+    hideSpinner();
+    $('.open-tree').hide();
+    return;
+}
