@@ -447,75 +447,36 @@ function checkRepos(repos) {
     var result = true;
 
     if (repos && repos.length > 0) {
-        var path,
-            repoName;
+        for (var key in repos) {
+            var objRepoInfo = repos[key];
+            var path;
+            if (objRepoInfo.id == project_id) {
+                path = objRepoInfo.path;
+                repoName = objRepoInfo.name;
+                path_with_namespace = objRepoInfo.path_with_namespace;
+            }
+        }
 
-        var arrReposId = [];
-        
-        repos.forEach(function(item, index){
-            arrReposId.push(item.id);
-        });
-        var isExist = inArray(arrReposId, project_id);
+        if (!path_with_namespace) {
+            console.log('如果path_with_namespace没拿到，再拿一遍');
+            path_with_namespace = $('.home a').attr('href');
+            var firstChar = path_with_namespace.substring(0, 1);
+            if (firstChar && firstChar === '/') {
+                path_with_namespace = path_with_namespace.substr(1);
+            }
+        }
 
-        if (isExist == true) {
-            var currentRepo = {};
-            repos.forEach(function(item, index) {
-                if (item.id = project_id) {
-                    currentRepo = item;
-                }
-            });
-
-            path = currentRepo.path;
-            repoName = currentRepo.name;
-            path_with_namespace = currentRepo.path_with_namespace;
-
-        } else {
-            console.log('没有repo权限');
+        if (!path_with_namespace) {
             quit();
             result = false;
         }
 
-        // if (objRepoInfo.id == project_id) {
-
-        //     path = objRepoInfo.path;
-        //     repoName = objRepoInfo.name;
-        //     path_with_namespace = objRepoInfo.path_with_namespace;
-        //     return true;
-        // } else {
-        //     console.log('没有repo权限');
-        //     quit();
-        //     return false;
-        // }
-    }
-
-    if (path_with_namespace) {
-        console.log('如果path_with_namespace没拿到，再拿一遍');
-        path_with_namespace = $('.home a').attr('href');
-        var firstChar = path_with_namespace.substring(0, 1);
-        if (firstChar && firstChar === '/') {
-            path_with_namespace = path_with_namespace.substr(1);
+        if (!repository_ref) {
+            quit();
+            result = false;
         }
-    } else {
-        quit();
-        result = false;
     }
 
-    if (!repository_ref) {
-        quit();
-        result = false;
-    }
-
-    return result;
-}
-
-//inArray方法封装
-function inArray(arr, value) {
-    var result = false
-    arr.forEach(function(item, index){
-        if (item === +value) {
-            result = true;
-        }
-    });
     return result;
 }
 
