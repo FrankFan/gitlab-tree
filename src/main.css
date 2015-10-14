@@ -26,6 +26,7 @@
 }
 
 .gitlab-tree div.head {
+    position: relative;
     font-size: 13px;
     font-weight: bold;
 }
@@ -80,9 +81,12 @@
 a.gitlabtree_toggle {
     width: 30px;
     height: 30px;
-    top: -15px;
-    right: -95px;
+    position: absolute;
+    top: 5px;
+    right: 15px;
 }
+
+
 
 .icon-white {
     background-image: url("http://images2015.cnblogs.com/blog/282019/201510/282019-20151012205005819-1752203324.png");
@@ -123,4 +127,13 @@ a.gitlabtree_toggle {
     cursor: pointer;
     border-radius: 3px;
     text-align: center;
+}
+
+.open-tree.busy {
+    background-color: #474D57;
+    top: 0px;
+}
+
+.open-tree i {
+    font-size: 25px;
 }

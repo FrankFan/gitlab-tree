@@ -16,6 +16,10 @@ function myMain(evt) {
     $(function() {
         if ($('head script[type="text/javascript"]').contents()[0]) {
 
+            createBtn();
+
+            showSpinner();
+
             private_token = getPrivateToken($('head script[type="text/javascript"]').contents()[0]['wholeText']);
 
 
@@ -55,107 +59,14 @@ function myMain(evt) {
                     ref_name: repository_ref
                 }, function(result) {
                     console.log('request apiRepoTree result.length = ' + result.length);
-                    
+                    hideSpinner();
                     if (isFilesTab()) {
 
                         createGitlabTreeContainer();
 
                         createGitlabTree(result);
 
-                        $jstree.on("select_node.jstree", function(e, data) {
-                            var selectNode = $jstree.jstree('get_selected');
-                            console.log('select_node.jstree');
-                            if (data && data.node && data.node.data == 'tree') {
-                                var path = data.node.text;
-                                var currentNodeId = data.node.id;
-                                var parentNode = $jstree.jstree(true).get_parent(currentNodeId);
-
-                                // 获取select节点+ 父节点的text
-                                var currentNodeText = data.node.text;
-                                var arrParents = data.node.parents;
-
-                                path = currentNodeText + '/';
-
-                                // 获取当前select节点+所有父节点的text  ["j1_13", "j1_3", "#"]
-                                arrParents.forEach(function(item){
-                                    if (item !== '#') {
-                                        var tmpText = $jstree.jstree(true).get_text(item);
-                                        path += tmpText + '/';
-                                    }
-                                });
-
-                                // path = "java/main/src/"
-                                path = revertPath(path);
-
-
-                                // 如果已经加载过了，就不要重复加载了
-                                var arrClickedDir = localStorage.getItem('loadedDirs');
-                                if (arrClickedDir) {
-                                    arrClickedDir = arrClickedDir.split(',');
-                                }
-
-                                if (arrClickedDir && arrClickedDir.indexOf(path) > -1) {
-                                    console.log('loaded the same path, abort');
-                                    return;
-                                }
-                                
-                                // 获取子目录结构
-                                $.get(apiRepoTree, {
-                                    private_token: private_token,
-                                    id: project_id,
-                                    path: path,
-                                    ref_name: repository_ref
-                                }, function(result) {
-
-                                    var arrClickedDir = localStorage.getItem('loadedDirs');
-                                    if (arrClickedDir) {
-                                        arrClickedDir = arrClickedDir.split(',');
-                                        arrClickedDir.push(path);
-                                    }
-
-                                    if (arrClickedDir && Array.isArray(arrClickedDir)) {
-                                        localStorage.setItem('loadedDirs', arrClickedDir.join(','));    
-                                    } else {
-                                        localStorage.setItem('loadedDirs', path);
-                                    }
-
-                                    var nodesDisplay = [];
-                                    result.forEach(function(item) {
-                                        var singleObj = {};
-                                        singleObj.text = item.name;
-
-                                        if (item.type === 'tree') {
-                                            singleObj.children = [];
-                                            singleObj.data = 'tree';
-                                            singleObj.icon = 'fa fa-folder';
-                                        } else if (item.type === 'blob') {
-                                            singleObj.icon = 'fa fa-file-o';
-                                            singleObj.data = 'blob';
-                                        }
-
-                                        nodesDisplay.push(singleObj);
-                                    });
-
-                                    nodesDisplay.forEach(function(item) {
-                                        $jstree.jstree(true).create_node(selectNode, item, 'last');
-                                    });
-                                    
-                                    // $(".gitlab-tree nav").jstree(true).open_all();
-                                    // $(".gitlab-tree nav").jstree(true).close_all();
-                                    $jstree.jstree(true).open_node(selectNode);
-
-                                });
-                            } else { // blob
-
-                                var href = getClickedFileFullPath(data);
-
-                                // fix pjax link.href can't contains '#'
-                                var snode = $jstree.jstree(true).get_node(selectNode, true);
-                                $(snode.find('a'))[0].href = href;
-                                
-                                $(document).pjax('.gitlab-tree nav a.jstree-clicked', '#tree-content-holder', {fragment:'#tree-content-holder', timeout:9000});
-                            }
-                        });
+                        selectNode();
 
                         hackStyle();
 
@@ -220,7 +131,10 @@ function hackStyle() {
         $('header.navbar').css('margin-left', '230px');
         // $('.content-wrapper').css('margin-left', '160px');
     } else {
-        updateLayoutUI('show');
+        // updateLayoutUI('hide');
+        hideGitlabTree();
+        
+
         $('body').css('overflow', 'hidden');
     }
 }
@@ -234,8 +148,14 @@ function handlePJAX() {
             });
         });
 
-        $(document).on('pjax:start', function() { NProgress.start(); });
-        $(document).on('pjax:end',   function() { NProgress.done();  });
+        $(document).on('pjax:start', function() {
+            NProgress.start();
+            showLoading();
+        });
+        $(document).on('pjax:end', function() {
+            NProgress.done();
+            hideLoading();
+        });
     }
 }
 
@@ -348,6 +268,104 @@ function createGitlabTree(result) {
     });
 }
 
+// 监听tree node 事件
+function selectNode() {
+    $jstree.on("select_node.jstree", function(e, data) {
+        var selectNode = $jstree.jstree('get_selected');
+        console.log('select_node.jstree');
+        if (data && data.node && data.node.data == 'tree') {
+            var path = data.node.text;
+            var currentNodeId = data.node.id;
+            var parentNode = $jstree.jstree(true).get_parent(currentNodeId);
+
+            // 获取select节点+ 父节点的text
+            var currentNodeText = data.node.text;
+            var arrParents = data.node.parents;
+
+            path = currentNodeText + '/';
+
+            // 获取当前select节点+所有父节点的text  ["j1_13", "j1_3", "#"]
+            arrParents.forEach(function(item){
+                if (item !== '#') {
+                    var tmpText = $jstree.jstree(true).get_text(item);
+                    path += tmpText + '/';
+                }
+            });
+
+            // path = "java/main/src/"
+            path = revertPath(path);
+
+
+            // 如果已经加载过了，就不要重复加载了
+            var arrClickedDir = localStorage.getItem('loadedDirs');
+            if (arrClickedDir) {
+                arrClickedDir = arrClickedDir.split(',');
+            }
+
+            if (arrClickedDir && arrClickedDir.indexOf(path) > -1) {
+                console.log('loaded the same path, abort');
+                return;
+            }
+            
+            // 获取子目录结构
+            $.get(apiRepoTree, {
+                private_token: private_token,
+                id: project_id,
+                path: path,
+                ref_name: repository_ref
+            }, function(result) {
+
+                var arrClickedDir = localStorage.getItem('loadedDirs');
+                if (arrClickedDir) {
+                    arrClickedDir = arrClickedDir.split(',');
+                    arrClickedDir.push(path);
+                }
+
+                if (arrClickedDir && Array.isArray(arrClickedDir)) {
+                    localStorage.setItem('loadedDirs', arrClickedDir.join(','));    
+                } else {
+                    localStorage.setItem('loadedDirs', path);
+                }
+
+                var nodesDisplay = [];
+                result.forEach(function(item) {
+                    var singleObj = {};
+                    singleObj.text = item.name;
+
+                    if (item.type === 'tree') {
+                        singleObj.children = [];
+                        singleObj.data = 'tree';
+                        singleObj.icon = 'fa fa-folder';
+                    } else if (item.type === 'blob') {
+                        singleObj.icon = 'fa fa-file-o';
+                        singleObj.data = 'blob';
+                    }
+
+                    nodesDisplay.push(singleObj);
+                });
+
+                nodesDisplay.forEach(function(item) {
+                    $jstree.jstree(true).create_node(selectNode, item, 'last');
+                });
+                
+                // $(".gitlab-tree nav").jstree(true).open_all();
+                // $(".gitlab-tree nav").jstree(true).close_all();
+                $jstree.jstree(true).open_node(selectNode);
+
+            });
+        } else { // blob
+
+            var href = getClickedFileFullPath(data);
+
+            // fix pjax link.href can't contains '#'
+            var snode = $jstree.jstree(true).get_node(selectNode, true);
+            $(snode.find('a'))[0].href = href;
+            
+            $(document).pjax('.gitlab-tree nav a.jstree-clicked', '#tree-content-holder', {fragment:'#tree-content-holder', timeout:9000});
+        }
+    });
+}
+
 function getClickedFileFullPath(data) {
     var path = data.node.text + '/';
     var arrParents = data.node.parents;
@@ -427,5 +445,18 @@ function hideLoading() {
     $('.toggle-btn').addClass('toggle-btn-color');
 }
 
+function showSpinner() {
+    $('.open-tree')
+        .removeClass('fa fa-angle-right')
+        .addClass('busy')
+        .append('<i class="fa fa-spinner fa-spin"></i>');
+}
+
+function hideSpinner() {
+    $('.open-tree')
+        .addClass('fa fa-angle-right')
+        .removeClass('busy');
+    $('.open-tree i').removeClass('fa fa-spinner fa-spin');
+}
 
 
