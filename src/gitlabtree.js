@@ -118,6 +118,8 @@ function hackStyle() {
         hideGitlabTree();
         $('body').css('overflow', 'hidden');
     }
+
+    $('.breadcrumb').addClass('vh');
 }
 
 function handlePJAX() {

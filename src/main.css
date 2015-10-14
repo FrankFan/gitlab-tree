@@ -137,3 +137,7 @@ a.gitlabtree_toggle {
 .open-tree i {
     font-size: 25px;
 }
+
+.vh {
+    visibility: hidden !important;
+}
