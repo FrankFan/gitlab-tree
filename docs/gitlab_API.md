@@ -198,29 +198,3 @@ Get file from repository   获取文件列表
 
 
 
-## UI
-
-```css
-.gitlab-tree {
-    width: 300px;
-}
-
-header.navbar {
-    margin-left: 300px;
-}
-
-nav.main-nav {
-    margin-left: 300px;
-}
-
-.container {
-    margin-left: 300px;
-}
-
-body{
-    overflow: hidden;
-}
-```
-
-通过动态修改 `sidebar` 和 `mainContent` 的间距。
-
