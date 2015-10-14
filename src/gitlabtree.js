@@ -22,9 +22,7 @@ function myMain(evt) {
 
             private_token = getPrivateToken($('head script[type="text/javascript"]').contents()[0]['wholeText']);
 
-
             initVariables();
-            
 
             // 1. 获取所需变量
             $.get(apiProjects, {
@@ -58,8 +56,8 @@ function myMain(evt) {
                     // path: path,
                     ref_name: repository_ref
                 }, function(result) {
-                    console.log('request apiRepoTree result.length = ' + result.length);
                     hideSpinner();
+
                     if (isFilesTab()) {
 
                         createGitlabTreeContainer();
@@ -129,12 +127,8 @@ function hackStyle() {
         $('.sidebar-wrapper').hide();
         $('.gitlab-tree').css('width', '230px');
         $('header.navbar').css('margin-left', '230px');
-        // $('.content-wrapper').css('margin-left', '160px');
     } else {
-        // updateLayoutUI('hide');
         hideGitlabTree();
-        
-
         $('body').css('overflow', 'hidden');
     }
 }
@@ -227,9 +221,13 @@ function createGitlabTreeContainer() {
     var htmlTemplate = '<div class="gitlab-tree">\
                             <header>\
                                 <div class="head">\
-                                    <div class="info"><i class="fa fa-lock"></i><a href="/groups/mobile" target="_blank"></a> / <span></span></div>\
+                                    <div class="info">
+                                        <i class="fa fa-lock"></i><a href="/groups/mobile" target="_blank"></a> / <span></span>\
+                                    </div>\
                                     <i class="fa fa-code-fork"></i><span class="branch"></span>\
-                                    <a class="gitlabtree_toggle toggle-btn icon-white icon-arraw-left toggle-btn-color"><div class="loader icon-loading" style="display: none;"></div></a>\
+                                    <a class="gitlabtree_toggle toggle-btn icon-white icon-arraw-left toggle-btn-color">
+                                        <div class="loader icon-loading" style="display: none;"></div>\
+                                    </a>\
                                 </div>\
                             </header>';
     htmlTemplate += '<nav></nav></div>';
@@ -294,7 +292,6 @@ function selectNode() {
 
             // path = "java/main/src/"
             path = revertPath(path);
-
 
             // 如果已经加载过了，就不要重复加载了
             var arrClickedDir = localStorage.getItem('loadedDirs');
