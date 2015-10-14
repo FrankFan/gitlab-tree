@@ -25,9 +25,9 @@ function myMain(evt) {
             initVariables();
 
             // 1. 获取所需变量
-            $.get(apiProjects, {
-                private_token: private_token
-            }, function(repos) {
+            $.get(apiProjects, {private_token: private_token})
+            .done(function(repos){
+                
                 for (var key in repos) {
                     var objRepoInfo = repos[key];
                     var path;
@@ -54,7 +54,8 @@ function myMain(evt) {
                     id: project_id,
                     // path: path,
                     ref_name: repository_ref
-                }, function(result) {
+                })
+                .done(function(result) {
                     hideSpinner();
 
                     if (isFilesTab()) {
@@ -71,8 +72,8 @@ function myMain(evt) {
 
                         handleToggleBtn();
                     }
-
                 });
+
             });
         }
     });
