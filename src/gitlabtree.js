@@ -21,13 +21,20 @@ function myMain(evt) {
 
             private_token = getPrivateToken($('head script[type="text/javascript"]').contents()[0]['wholeText']);
 
+            if (!private_token) {
+                return;
+            }
+
             initVariables();
 
             // 1. 获取所需变量
             $.get(apiProjects, {private_token: private_token})
             .done(function(repos){
 
-                checkRepos(repos);
+                var checkResult = checkRepos(repos);
+                if (checkResult == false) {
+                    return;
+                }
 
                 // 2. 获取repo代码目录结构
                 $.get(apiRepoTree, {
@@ -81,7 +88,8 @@ function getPrivateToken(strXml) {
         private_token = private_token.replace(/\"/g, '');
     } else {
         console.log('token获取失败');
-        return;
+        quit();
+        return false;
     }
 
     return private_token;
@@ -436,18 +444,48 @@ function hideSpinner() {
 }
 
 function checkRepos(repos) {
-    if (repos && repos.length > 0) {
-        for (var key in repos) {
-            var objRepoInfo = repos[key];
-            var path,
-                repoName;
-            if (objRepoInfo.id == project_id) {
+    var result = true;
 
-                path = objRepoInfo.path;
-                repoName = objRepoInfo.name;
-                path_with_namespace = objRepoInfo.path_with_namespace;
-            }
+    if (repos && repos.length > 0) {
+        var path,
+            repoName;
+
+        var arrReposId = [];
+        
+        repos.forEach(function(item, index){
+            arrReposId.push(item.id);
+        });
+        var isExist = inArray(arrReposId, project_id);
+
+        if (isExist == true) {
+            var currentRepo = {};
+            repos.forEach(function(item, index) {
+                if (item.id = project_id) {
+                    currentRepo = item;
+                }
+            });
+
+            path = currentRepo.path;
+            repoName = currentRepo.name;
+            path_with_namespace = currentRepo.path_with_namespace;
+
+        } else {
+            console.log('没有repo权限');
+            quit();
+            result = false;
         }
+
+        // if (objRepoInfo.id == project_id) {
+
+        //     path = objRepoInfo.path;
+        //     repoName = objRepoInfo.name;
+        //     path_with_namespace = objRepoInfo.path_with_namespace;
+        //     return true;
+        // } else {
+        //     console.log('没有repo权限');
+        //     quit();
+        //     return false;
+        // }
     }
 
     if (path_with_namespace) {
@@ -459,15 +497,29 @@ function checkRepos(repos) {
         }
     } else {
         quit();
+        result = false;
     }
 
     if (!repository_ref) {
         quit();
+        result = false;
     }
+
+    return result;
+}
+
+//inArray方法封装
+function inArray(arr, value) {
+    var result = false
+    arr.forEach(function(item, index){
+        if (item === +value) {
+            result = true;
+        }
+    });
+    return result;
 }
 
 function quit() {
     hideSpinner();
     $('.open-tree').hide();
-    return;
 }
