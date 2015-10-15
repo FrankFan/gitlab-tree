@@ -412,7 +412,7 @@ function updateLayoutUI(operateType) {
             $('.container').css('padding-left', '0');
         }
     } else {
-        if (screenWidth < 1000) {
+        if (screenWidth <= 1280) {
             $('.container').css('padding-left', '300px');
         } else {
             $('.container').css('padding-left', '0');
