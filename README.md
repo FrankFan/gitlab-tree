@@ -15,4 +15,4 @@ Download and install Gitlab-Tree from [Chrome Web Store](https://chrome.google.c
 
 ## screenshot
 
-![]('./docs/gitlab-tree.png')
+![](./docs/gitlab-tree.png)
