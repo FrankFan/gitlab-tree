@@ -11,5 +11,5 @@ Features:
 
 ## install
 
-Download and install Gitlab-Tree from Chrome Web Store (todo)
+Download and install Gitlab-Tree from [Chrome Web Store](https://chrome.google.com/webstore/detail/gitlab-tree/dllpphhnoanpcnlnipopibigdoeignbb?hl=zh-CN&gl=CN)
 
