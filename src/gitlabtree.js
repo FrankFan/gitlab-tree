@@ -288,6 +288,7 @@ var GitlabTree = (function($){
                 var snode = $jstree.jstree(true).get_node(selectNode, true);
                 $(snode.find('a'))[0].href = href;
                 
+                // 只能这样写否则就不work了……
                 $(document).pjax('.gitlab-tree nav a.jstree-clicked', '#tree-content-holder', {fragment:'#tree-content-holder', timeout:9000});
             }
         });
@@ -361,6 +362,7 @@ var GitlabTree = (function($){
         }
     }
 
+    // 显示tree里面的loading
     var showLoading = function() {
         $('.loader').show();
         $('.toggle-btn').removeClass('toggle-btn-color');
@@ -371,6 +373,7 @@ var GitlabTree = (function($){
         $('.toggle-btn').addClass('toggle-btn-color');
     }
 
+    // 显示tree外面的loading
     var showSpinner = function() {
         $('.open-tree')
             .removeClass('fa fa-angle-right')
