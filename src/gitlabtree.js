@@ -487,10 +487,7 @@ var GitlabTree = (function($){
         init: init,
         action: getApiProjects
     }
-
-
 })(jQuery);
-
 
 
 
