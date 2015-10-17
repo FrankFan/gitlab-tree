@@ -93,8 +93,8 @@ var GitlabTree = (function($){
         }
     }
 
+    // 判断当前是否是Files Tab
     var isFilesTab = function() {
-        // 判断当前是否是Files Tab
 
         var currentTabText = $('.project-navigation li.active a').text();
         if (currentTabText === 'Files' || $('.nav.nav-sidebar li.active a').text().trim() === 'Files') {
@@ -103,10 +103,10 @@ var GitlabTree = (function($){
         return false;
     }
 
+    // path = "java/main/src/"
+    //    --> "src/main/java"
     var revertPath = function(revertedPathString) {
-        // path = "java/main/src/"
-        //    --> "src/main/java"
-
+        
         var retString = '';
         var arrString = revertedPathString.split('/');
         
@@ -131,9 +131,9 @@ var GitlabTree = (function($){
         return retString;
     }
 
+    // 删除数组中指定的元素
     var removeElement = function(index, array){
-        // 删除数组中指定的元素
-
+        
         if (index >= 0 && index < array.length) {
             for (var i = index; i < array.length; i++) {
                 array[i] = array[i + 1];
@@ -166,8 +166,9 @@ var GitlabTree = (function($){
     }
 
 
+    // 构建一颗子树
     var createGitlabTree = function(result) {
-        // 构建一颗子树
+        
         var subTreeData = [];
         result.forEach(function(item) {
             var singleObj = {};
@@ -194,8 +195,8 @@ var GitlabTree = (function($){
         });
     }
 
+    // 监听tree node 事件
     var selectNode = function() {
-        // 监听tree node 事件
 
         $jstree.on("select_node.jstree", function(e, data) {
             var selectNode = $jstree.jstree('get_selected');
@@ -498,8 +499,6 @@ window.addEventListener("load", myMain, false);
 function myMain(evt) {
     $(function() {
 
-        console.dir(GitlabTree);
-
         GitlabTree.init();
 
         GitlabTree.action();
@@ -508,3 +507,13 @@ function myMain(evt) {
 }
 
 
+// function ajaxStop() {
+//     $(window.document).on('ajaxSuccess', function(e, result, c) {
+//         console.dir(e);
+//         console.log(result);
+//         console.log(c);
+//         console.log('ajaxStop');
+//     });
+// };
+
+// ajaxStop();
