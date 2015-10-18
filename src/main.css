@@ -60,7 +60,6 @@
     white-space: nowrap;
     vertical-align: middle;
     cursor: pointer;
-    /*background-color: #446e9b;*/
     background-color: #fff;
     background-image: -webkit-linear-gradient(#fcfcfc, #eee);
     background-image: linear-gradient(#fcfcfc, #eee);
@@ -85,8 +84,6 @@ a.gitlabtree_toggle {
     top: 5px;
     right: 15px;
 }
-
-
 
 .icon-white {
     background-image: url("http://images2015.cnblogs.com/blog/282019/201510/282019-20151012205005819-1752203324.png");
