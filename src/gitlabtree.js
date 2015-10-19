@@ -13,65 +13,77 @@ window.addEventListener("load", myMain, false);
 
 function myMain(evt) {
     $(function() {
-        if ($('head script[type="text/javascript"]').contents()[0]) {
 
-            createBtn();
+        private_token = getPrivateToken($('head script[type="text/javascript"]').contents()[0]['wholeText']);
 
-            showSpinner();
+        if (!private_token) {
+            return;
+        }
 
-            private_token = getPrivateToken($('head script[type="text/javascript"]').contents()[0]['wholeText']);
+        createBtn();
 
-            if (!private_token) {
+        showSpinner();
+
+        initVariables();
+
+        // 1. 获取所需变量
+        $.get(apiProjects, {private_token: private_token})
+        .done(function(repos){
+
+            var checkResult = checkRepos(repos);
+            if (checkResult == false) {
                 return;
             }
 
-            initVariables();
+            // 2. 获取repo代码目录结构
+            $.get(apiRepoTree, {
+                private_token: private_token,
+                id: project_id,
+                // path: path,
+                ref_name: repository_ref
+            })
+            .done(function(result) {
+                hideSpinner();
 
-            // 1. 获取所需变量
-            $.get(apiProjects, {private_token: private_token})
-            .done(function(repos){
+                if (isFilesTab()) {
 
-                var checkResult = checkRepos(repos);
-                if (checkResult == false) {
-                    return;
+                    createGitlabTreeContainer();
+
+                    createGitlabTree(result);
+
+                    selectNode();
+
+                    hackStyle();
+
+                    handlePJAX();
+
+                    handleToggleBtn();
                 }
-
-                // 2. 获取repo代码目录结构
-                $.get(apiRepoTree, {
-                    private_token: private_token,
-                    id: project_id,
-                    // path: path,
-                    ref_name: repository_ref
-                })
-                .done(function(result) {
-                    hideSpinner();
-
-                    if (isFilesTab()) {
-
-                        createGitlabTreeContainer();
-
-                        createGitlabTree(result);
-
-                        selectNode();
-
-                        hackStyle();
-
-                        handlePJAX();
-
-                        handleToggleBtn();
-                    }
-                });
-
             });
-        }
+
+        });
+        
     });
 }
 
+
+// var GitlabTree = (function(){
+    
+// })();
+
 // 获取private_token
 function getPrivateToken(strXml) {
-    var arrXmlNode = strXml.toString().split(';')
+    var arrXmlNode;
     var private_token;
     var objXml = {};
+
+
+    if($('head script[type="text/javascript"]').contents()[0]) {
+        arrXmlNode = strXml.toString().split(';')    
+    } else {
+        return false;
+    }
+    
     for (var i = 1; i < arrXmlNode.length - 1; i++) {
         var item = arrXmlNode[i].split('=');
         var key = item[0];
@@ -486,3 +498,12 @@ function quit() {
     hideSpinner();
     $('.open-tree').hide();
 }
+
+
+// function ajaxStop() {
+//     $(window.document).on('ajaxStop', function(e) {
+//         // myMain();
+//         console.dir(e);
+//         console.log('ajaxStop');
+//     });
+// }();
