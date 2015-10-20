@@ -1,42 +1,11 @@
 # gitlab_API
 
-  [1]: http://doc.gitlab.com/ce/api/repositories.html
-  [2]: http://gitlab.lujs.cn/api/v3/projects/
-  [3]: http://doc.gitlab.com/ce/api/repository_files.html
-  [4]: https://gitlab.com/gitlab-org/gitlab-ce/tree/master#README
-  [5]: http://gxxsite.com/content/view/id/150.html
-  [6]: http://www.ueffort.com/pjax-ji-shu/
+![](http://images2015.cnblogs.com/blog/282019/201510/282019-20151020103628145-762219576.jpg)
 
-gitlab官方没有找到对应的javascript API，只好自己写一套了。
-
-1. 获取 `private_token`
-
-测试：
-curl --header "PRIVATE-TOKEN: QVy1PB7sTxfy4pqfZM1U" "http://gitlab.lujs.cn/api/v3/projects/"
+gitlab提供了各种语言的API,但是唯独没有`js`的，不知为何。只好自己写一套。
 
 
-2.
-GET /projects/:id/repository/files
-GET /projects/613/repository/files
-
-curl --header "PRIVATE-TOKEN: f5o7jas_rQYPCCLHxKVy" "http://gitlab.lujs.cn/api/v3/projects/613/repository/files?file_path=zip.sh&ref=master"
-
-3.
-/projects/:id/repository/tree
-/projects/613/repository/tree
-curl --header "PRIVATE-TOKEN: f5o7jas_rQYPCCLHxKVy" "http://gitlab.lujs.cn/api/v3/projects/613/repository/tree"
-
-4.
-curl --header "PRIVATE-TOKEN: f5o7jas_rQYPCCLHxKVy" "http://gitlab.lujs.cn/api/v3/projects/613/repository/tree"
-
-
-5.
-
-
-------
-
-
-目录
+## 目录
 
 1. 查询指定项目属性接口
 
@@ -198,3 +167,9 @@ Get file from repository   获取文件列表
 
 
 
+  [1]: http://doc.gitlab.com/ce/api/repositories.html
+  [2]: http://gitlab.lujs.cn/api/v3/projects/
+  [3]: http://doc.gitlab.com/ce/api/repository_files.html
+  [4]: https://gitlab.com/gitlab-org/gitlab-ce/tree/master#README
+  [5]: http://gxxsite.com/content/view/id/150.html
+  [6]: http://www.ueffort.com/pjax-ji-shu/
