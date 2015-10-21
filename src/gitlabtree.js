@@ -1,4 +1,8 @@
-
+/*
+* @Author: fanyong@gmail.com
+* @Date:   2015-10-20
+* @Last Modified by:  FrankFan
+*/
 
 var GitlabTree = (function($){
     // 全局变量
