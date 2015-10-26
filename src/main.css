@@ -47,6 +47,10 @@
 .gitlab-tree div.head .branch{
     color: #fff;
     padding-left: 10px;
+    display: inline-block;
+    width: 180px;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .toggle-btn {

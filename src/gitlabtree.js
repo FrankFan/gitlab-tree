@@ -201,10 +201,10 @@ var GitlabTree = (function($){
 
     // 监听tree node 事件
     var selectNode = function() {
-
+        
         $jstree.on("select_node.jstree", function(e, data) {
             var selectNode = $jstree.jstree('get_selected');
-            console.log('select_node.jstree');
+
             if (data && data.node && data.node.data == 'tree') {
                 var path = data.node.text;
                 var currentNodeId = data.node.id;
@@ -296,6 +296,19 @@ var GitlabTree = (function($){
                 $(document).pjax('.gitlab-tree nav a.jstree-clicked', '#tree-content-holder', {fragment:'#tree-content-holder', timeout:9000});
             }
         });
+
+        // handle open node state
+        openCloseNode();
+    }
+
+    var openCloseNode = function() {
+        $jstree.on("before_open.jstree", function(e, data) {
+            showLoading();
+        });
+
+        $jstree.on("after_open.jstree", function(e, data) {
+            hideLoading();
+        });
     }
 
     var getClickedFileFullPath = function(data) {
@@ -357,11 +370,19 @@ var GitlabTree = (function($){
             } else {
                 $('.container').css('padding-left', '0');
             }
+
+            $('.container').css('margin-left', '274.5px');
         } else {
             if (screenWidth <= 1400) {
                 $('.container').css('padding-left', '300px');
             } else {
                 $('.container').css('padding-left', '0');
+            }
+
+            var containerML = $('.container').css('margin-left').replace('px','');
+            if (+containerML < 300) {
+                $('.container').css('padding-left', '300px');
+                $('.container').css('margin-left', '10px');
             }
         }
     }
@@ -509,15 +530,3 @@ function myMain(evt) {
         
     });
 }
-
-
-// function ajaxStop() {
-//     $(window.document).on('ajaxSuccess', function(e, result, c) {
-//         console.dir(e);
-//         console.log(result);
-//         console.log(c);
-//         console.log('ajaxStop');
-//     });
-// };
-
-// ajaxStop();
