@@ -15,7 +15,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["http://git.dev.sh.ctripcorp.com/*", "http://gitlab.lujs.cn/*"],
+      "matches": ["<all_urls>"],
       "js": ["libs/jquery/jquery.js", 
              "libs/jstree/jstree.js", 
              "libs/pjax/jquery.pjax.js", 

@@ -43,7 +43,6 @@ var GitlabTree = (function($){
         if (private_token) {
             private_token = private_token.replace(/\"/g, '');
         } else {
-            console.log('token获取失败');
             quit();
             return false;
         }
@@ -341,13 +340,18 @@ var GitlabTree = (function($){
     var createBtn = function() {
         if ($('.open-tree').length === 0) {
             var htmlTemplate = '<div class="open-tree fa fa-angle-right"></div>';
-            $('body').append(htmlTemplate);  
+            if (isFilesTab()) {
+                $('body').append(htmlTemplate);  
+            }
+            
 
             $('.open-tree').on('click', function() {
                 showGitlabTree();
             });  
         } else {
-            $('.open-tree').show();
+            if (isFilesTab()) {
+                $('.open-tree').show();
+            }
         }
     }
 
@@ -428,9 +432,8 @@ var GitlabTree = (function($){
             }
 
             if (!path_with_namespace) {
-                console.log('如果path_with_namespace没拿到，再拿一遍');
                 path_with_namespace = $('.home a').attr('href');
-                var firstChar = path_with_namespace.substring(0, 1);
+                var firstChar = path_with_namespace && path_with_namespace.substring(0, 1);
                 if (firstChar && firstChar === '/') {
                     path_with_namespace = path_with_namespace.substr(1);
                 }
@@ -459,8 +462,12 @@ var GitlabTree = (function($){
     // --------------------------------- export ---------------------------------
 
     var init = function() {
+        var wholeText;
 
-        private_token = getPrivateToken($('head script[type="text/javascript"]').contents()[0]['wholeText']);
+        if ($('head script[type="text/javascript"]').contents()[0]) {
+            wholeText = $('head script[type="text/javascript"]').contents()[0]['wholeText'];
+        }
+        private_token = getPrivateToken(wholeText);
 
         if (!private_token) {
             return;
@@ -518,15 +525,10 @@ var GitlabTree = (function($){
 })(jQuery);
 
 
+$(function() {
 
-window.addEventListener("load", myMain, false);
+    GitlabTree.init();
+    GitlabTree.action();
 
-function myMain(evt) {
-    $(function() {
+});
 
-        GitlabTree.init();
-
-        GitlabTree.action();
-        
-    });
-}
