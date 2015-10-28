@@ -13,6 +13,7 @@ var GitlabTree = (function($){
         path_with_namespace,
         apiProjects,
         originUrl,
+        initContainerML,
         $jstree;
 
     // 获取private_token
@@ -59,6 +60,8 @@ var GitlabTree = (function($){
         apiProjects = apiRootUrl;
         apiRepoTree = apiRootUrl + project_id + '/repository/tree';
         var apiFileContent = apiRootUrl + project_id + '/repository/files';
+
+        initContainerML = $('.container').css('margin-left').replace('px','');
 
         localStorage.removeItem('loadedDirs');
     }
@@ -148,7 +151,7 @@ var GitlabTree = (function($){
 
     var createGitlabTreeContainer = function() {
         // 创建一个container
-        var htmlTemplate = '<div class="gitlab-tree">\
+        var htmlTemplate = '<div class="gitlab-tree" style="display: none;">\
                                 <header>\
                                     <div class="head">\
                                         <div class="info">\
@@ -366,27 +369,20 @@ var GitlabTree = (function($){
     }
 
     var updateLayoutUI = function(operateType) {
+
         var screenWidth = window.innerWidth;
+        var currentContainerML = $('.container').css('margin-left').replace('px','');
 
         if (operateType === 'hide') {
-            if (screenWidth < 768) {
-                $('.container').css('padding-left', '0');
-            } else {
-                $('.container').css('padding-left', '0');
+
+            if (+currentContainerML > +initContainerML) {
+                $('.container').css('margin-left', initContainerML + 'px');
             }
 
-            $('.container').css('margin-left', '274.5px');
         } else {
-            if (screenWidth <= 1400) {
-                $('.container').css('padding-left', '300px');
-            } else {
-                $('.container').css('padding-left', '0');
-            }
-
-            var containerML = $('.container').css('margin-left').replace('px','');
-            if (+containerML < 300) {
-                $('.container').css('padding-left', '300px');
-                $('.container').css('margin-left', '10px');
+            
+            if (+currentContainerML < 300) {
+                $('.container').css('margin-left', '300px');
             }
         }
     }
@@ -524,13 +520,13 @@ var GitlabTree = (function($){
 
                         selectNode();
 
-                        hackStyle();
-
                         handlePJAX();
 
                         handleToggleBtn();
 
                         hotkey();
+
+                        hackStyle();
                     }
                 });
 
