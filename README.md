@@ -8,7 +8,7 @@ Chrome extension to display Gitlab code in tree format. Useful for developers wh
 * Easy-to-navigate code tree like web IDEs, simple and non-invasive
 * Fast browsing with pjax
 * UI looks like Gitlab itself
-* hotkey support(todo)
+* hotkey support( hit `[` to toggle gitlab-tree sidebar )
 
 ### install
 

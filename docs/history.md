@@ -13,7 +13,9 @@
 ### v1.2
 1. support all potential gitlab service
 
-## todo
+### v1.3
+1. support hotkey `[` to open or close gitlab-tree sidebar
+2. add animation effects when toggle gitlab-tree sidebar
+
+## todo(future feature)
 1. 根据path路径open对应的节点node
-2. 增加快捷键hotkey，快速关闭打开gitlab-tree
-3. 交互上增加一些动画效果
