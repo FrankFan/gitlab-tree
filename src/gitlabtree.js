@@ -356,12 +356,12 @@ var GitlabTree = (function($){
     }
 
     var hideGitlabTree = function() {
-        $('.gitlab-tree').hide();
+        $('.gitlab-tree').hide('fast');
         updateLayoutUI('hide');    
     }
 
     var showGitlabTree = function(){
-        $('.gitlab-tree').show();
+        $('.gitlab-tree').show('fast');
         updateLayoutUI('show');    
     }
 
@@ -453,6 +453,23 @@ var GitlabTree = (function($){
         return result;
     }
 
+    var hotkey = function () {
+        $(document).keyup(function(e){
+            // 219 [
+            if( e.keyCode === 219 ) {
+                toggleSideBar();
+            }
+        });
+    }
+
+    var toggleSideBar = function(){
+        if( $('.gitlab-tree:visible').length > 0 ) {
+            hideGitlabTree();
+        } else {
+            showGitlabTree();
+        }
+    }
+
     var quit = function () {
         hideSpinner();
         $('.open-tree').hide();
@@ -512,6 +529,8 @@ var GitlabTree = (function($){
                         handlePJAX();
 
                         handleToggleBtn();
+
+                        hotkey();
                     }
                 });
 
