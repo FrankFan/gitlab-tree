@@ -1,4 +1,4 @@
-## gitlab-tree
+## gitlab-tree  <img src="http://images2015.cnblogs.com/blog/282019/201511/282019-20151106105737086-1425638412.png" alt="gitlab tree logo" width="10%" height="10%"/>
 
 Chrome extension to display Gitlab code in tree format. Useful for developers who frequently read source in Gitlab and do not want to download or checkout too many repositories.
 
