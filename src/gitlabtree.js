@@ -19,7 +19,7 @@ var GitlabTree = (function($){
     // 获取private_token
     var getPrivateToken = function(strXml) {
         var arrXmlNode;
-        var private_token;
+        // var private_token;
         var objXml = {};
 
 
