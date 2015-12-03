@@ -540,10 +540,12 @@ var GitlabTree = (function($){
 })(jQuery);
 
 
-$(function() {
+// if exist jQuery object
+if (jQuery) {
+    $(function() {
 
-    GitlabTree.init();
-    GitlabTree.action();
+        GitlabTree.init();
+        GitlabTree.action();
 
-});
-
+    });
+}
