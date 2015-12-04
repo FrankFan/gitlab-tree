@@ -480,6 +480,11 @@ var GitlabTree = (function($){
         if ($('head script[type="text/javascript"]').contents()[0]) {
             wholeText = $('head script[type="text/javascript"]').contents()[0]['wholeText'];
         }
+
+        if (!wholeText) {
+            return;
+        }
+
         private_token = getPrivateToken(wholeText);
 
         if (!private_token) {
