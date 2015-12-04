@@ -17,5 +17,8 @@
 1. support hotkey `[` to open or close gitlab-tree sidebar
 2. add animation effects when toggle gitlab-tree sidebar
 
+### v1.4 (not release)
+1. optimized code, fix some potential bugs
+
 ## todo(future feature)
 1. 根据path路径open对应的节点node
