@@ -61,7 +61,10 @@ var GitlabTree = (function($){
         apiRepoTree = apiRootUrl + project_id + '/repository/tree';
         var apiFileContent = apiRootUrl + project_id + '/repository/files';
 
-        initContainerML = $('.container').css('margin-left').replace('px','');
+        if ($('.container').size())
+            initContainerML = $('.container').css('margin-left').replace('px','');
+        else
+            initContainerML = 10;
 
         localStorage.removeItem('loadedDirs');
     }
