@@ -60,8 +60,9 @@ var GitlabTree = (function($){
         apiProjects = apiRootUrl;
         apiRepoTree = apiRootUrl + project_id + '/repository/tree';
         var apiFileContent = apiRootUrl + project_id + '/repository/files';
-
-        initContainerML = $('.container').css('margin-left').replace('px','');
+        
+        var tmpClassName = $('.container').size() ? '.container' :'.content-wrapper';
+        initContainerML = $(tmpClassName).css('margin-left').replace('px','');
 
         localStorage.removeItem('loadedDirs');
     }
@@ -371,18 +372,19 @@ var GitlabTree = (function($){
     var updateLayoutUI = function(operateType) {
 
         var screenWidth = window.innerWidth;
-        var currentContainerML = $('.container').css('margin-left').replace('px','');
-
+        var tmpClassName = $('.container').size() ? '.container' :'.content-wrapper';
+        var currentContainerML = $(tmpClassName).css('margin-left').replace('px','');
+        if (tmpClassName == '.content-wrapper') return ;// don't change margin-left
         if (operateType === 'hide') {
 
             if (+currentContainerML > +initContainerML) {
-                $('.container').css('margin-left', initContainerML + 'px');
+                $(tmpClassName).css('margin-left', initContainerML + 'px');
             }
 
         } else {
             
             if (+currentContainerML < 300) {
-                $('.container').css('margin-left', '300px');
+                $(tmpClassName).css('margin-left', '300px');
             }
         }
     }
