@@ -86,12 +86,13 @@ var GitlabTree = (function($) {
   }
 
   var handlePJAX = function() {
+    console.log('pjax:complete');
     if ($.support.pjax) {
-      $(document).on('pjax:complete', function() {
-        $('pre code').each(function(i, block) {
-          hljs.highlightBlock(block);
-        });
-      });
+      // $(document).on('pjax:complete', function() {
+      //   $('pre code').each(function(i, block) {
+      //     hljs.highlightBlock(block);
+      //   });
+      // });
 
       $(document).on('pjax:start', function() {
         NProgress.start();
@@ -100,6 +101,11 @@ var GitlabTree = (function($) {
       $(document).on('pjax:end', function() {
         NProgress.done();
         hideLoading();
+
+        // TODO: 这里无法高亮代码，需要优化
+        $('pre code').each(function(i, block) {
+          hljs.highlightBlock(block);
+        });
       });
     }
   }
@@ -111,9 +117,6 @@ var GitlabTree = (function($) {
     if (currentTabText === 'Files' || $('.nav.nav-sidebar li.active a').text().trim() === 'Files') {
       return true;
     }
-    // else if ($('li.active a').attr('title') === 'Files') {
-    //   return true;
-    // }
     return false;
   }
 
@@ -302,11 +305,24 @@ var GitlabTree = (function($) {
         var snode = $jstree.jstree(true).get_node(selectNode, true);
         $(snode.find('a'))[0].href = href;
 
-        // 只能这样写否则就不work了……
-        $(document).pjax('.gitlab-tree nav a.jstree-clicked', '.tree-content-holder', {
-          fragment: '.tree-content-holder',
-          timeout: 9000
-        });
+console.log(1);
+        if ($('.tree-content-holder').length > 0) {
+          console.log(2);
+          // 只能这样写否则就不work了……
+          $(document).pjax('.gitlab-tree nav a.jstree-clicked', '.tree-content-holder', {
+            fragment: '.tree-content-holder',
+            timeout: 9000
+          });
+        } else if ($('.blob-content-holder').length > 0) {
+          console.log(3);
+          $(document).pjax('.gitlab-tree nav a.jstree-clicked', '.blob-content-holder', {
+            fragment: '.blob-content-holder',
+            timeout: 9000
+          });
+        }
+
+
+
       }
     });
 
