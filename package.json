@@ -1,0 +1,24 @@
+{
+  "name": "gitlab-tree",
+  "version": "1.4.0",
+  "description": "Chrome extension to display Gitlab code in tree format. Useful for developers who frequently read source in Gitlab and do not want to download or checkout too many repositories.",
+  "directories": {
+    "doc": "docs",
+    "test": "test",
+    "src": "src"
+  },
+  "scripts": {
+    "start": "echo \" what happened. \" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FrankFan/gitlab-tree.git"
+  },
+  "keywords": ["gitlab tree"],
+  "author": "fy98.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FrankFan/gitlab-tree/issues"
+  },
+  "homepage": "https://github.com/FrankFan/gitlab-tree"
+}
