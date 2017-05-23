@@ -13,7 +13,7 @@ Chrome extension to display Gitlab code in tree format. Useful for developers wh
 
 ### install
 
-Download and install Gitlab-Tree from [Chrome Web Store](https://chrome.google.com/webstore/detail/gitlab-tree/dllpphhnoanpcnlnipopibigdoeignbb?hl=zh-CN&gl=CN)
+Download and install Gitlab-Tree from [Chrome Web Store](https://chrome.google.com/webstore/detail/gitlab-tree/dllpphhnoanpcnlnipopibigdoeignbb)
 
 ### usage
 
