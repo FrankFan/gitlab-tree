@@ -21,6 +21,7 @@
              "libs/pjax/jquery.pjax.js",
              "libs/highlight/highlight.min.js",
              "libs/nprogress/nprogress.js",
+             "libs/base64-js/base64js.min.js",
              "gitlabtree.js"],
       "css": ["main.css",
               "libs/nprogress/nprogress.css",

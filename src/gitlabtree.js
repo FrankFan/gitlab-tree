@@ -10,24 +10,24 @@ var GitlabTree = (function($) {
     project_id,
     repository_ref,
     apiRepoTree,
+    apiFileContent,
     path_with_namespace,
     apiProjects,
     originUrl,
     initContainerML,
+    wholeText,
     $jstree;
 
   // 获取private_token
-  var getPrivateToken = function(strXml) {
+  var getPrivateToken = function(dtd) {
     var arrXmlNode;
-    // var private_token;
     var objXml = {};
 
-
     if ($('head script[type="text/javascript"]').contents()[0]) {
-      arrXmlNode = strXml.toString().split(';')
+      arrXmlNode = wholeText.toString().split(';')
     } else {
       if ($('head script').contents()[0]) {
-        arrXmlNode = strXml.toString().split(';')
+        arrXmlNode = wholeText.toString().split(';')
       } else {
         return false;
       }
@@ -48,11 +48,24 @@ var GitlabTree = (function($) {
     if (private_token) {
       private_token = private_token.replace(/\"/g, '');
     } else {
-      quit();
-      return false;
+      tryToGetTokenInGitlab9(function(result) {
+        if (result) {
+          private_token = result;
+          dtd.resolve();
+        } else {
+          quit();
+          dtd.reject();
+        }
+      });
     }
+  }
 
-    return private_token;
+  var tryToGetTokenInGitlab9 = function(callback) {
+    $.ajax(window.location.origin + '/profile/account')
+      .then(function(data, status) {
+        private_token = data && $(data).find('#private-token').val();
+        callback && callback(private_token);
+      });
   }
 
   var initVariables = function() {
@@ -63,10 +76,10 @@ var GitlabTree = (function($) {
     var apiRootUrl = originUrl + '/api/v3/projects/';
     apiProjects = apiRootUrl;
     apiRepoTree = apiRootUrl + project_id + '/repository/tree';
-    var apiFileContent = apiRootUrl + project_id + '/repository/files';
+    apiFileContent = apiRootUrl + project_id + '/repository/files/';
 
     var tmpClassName = $('.container').size() ? '.container' : '.content-wrapper';
-    initContainerML = $(tmpClassName).css('margin-left').replace('px', '');
+    initContainerML = tmpClassName && $(tmpClassName) && $(tmpClassName).css('margin-left') && $(tmpClassName).css('margin-left').replace('px', '');
 
     localStorage.removeItem('loadedDirs');
   }
@@ -112,11 +125,17 @@ var GitlabTree = (function($) {
 
   // 判断当前是否是Files Tab
   var isFilesTab = function() {
-
     var currentTabText = $('.project-navigation li.active a').text();
     if (currentTabText === 'Files' || $('.nav.nav-sidebar li.active a').text().trim() === 'Files') {
       return true;
     }
+
+    // gitlab 9.x
+    var currentTabText2 = $('.nav-links.sub-nav li.active a').text().trim();
+    if (currentTabText2 === 'Files') {
+      return true;
+    }
+
     return false;
   }
 
@@ -299,30 +318,45 @@ var GitlabTree = (function($) {
         });
       } else { // blob
 
-        var href = getClickedFileFullPath(data);
+        var href = getClickedPath(data).fullPath;
+        var filePath = getClickedPath(data).filePath;
+
+        // 获取子目录结构
+        $.get(apiFileContent + filePath, {
+          private_token: private_token,
+          ref: repository_ref
+        }, function(result) {
+          // console.log(result);
+          // console.log(base64.decode(result.content));
+
+          // $('.blob-content').text(base64.decode(result.content));
+        });
+
+        // return;
+        // http://gitlab.lujs.cn/mobile/lu-m-commonbusiness/blob/develop/src/index.html
+        // http://gitlab.lujs.cn/api/v3/projects/554/repository/files/src/index.html?ref=master
+        // /projects/:id/repository/files/:file_path?ref=master
 
         // fix pjax link.href can't contains '#'
         var snode = $jstree.jstree(true).get_node(selectNode, true);
         $(snode.find('a'))[0].href = href;
 
-console.log(1);
-        if ($('.tree-content-holder').length > 0) {
-          console.log(2);
+        if ($('#blob-content-holder').length > 0) {
           // 只能这样写否则就不work了……
-          $(document).pjax('.gitlab-tree nav a.jstree-clicked', '.tree-content-holder', {
-            fragment: '.tree-content-holder',
-            timeout: 9000
-          });
-        } else if ($('.blob-content-holder').length > 0) {
-          console.log(3);
-          $(document).pjax('.gitlab-tree nav a.jstree-clicked', '.blob-content-holder', {
-            fragment: '.blob-content-holder',
-            timeout: 9000
+          $(document).pjax('.gitlab-tree nav a.jstree-clicked', '#blob-content-holder', {
+            fragment: '#blob-content-holder',
+            container: '#blob-content-holder',
+            timeout: 650,
+            url: href,
           });
         }
-
-
-
+        // else if ($('.blob-content-holder').length > 0) {
+        //   console.log(3);
+        //   $(document).pjax('.gitlab-tree nav a.jstree-clicked', '.file-holder', {
+        //     fragment: '.file-holder',
+        //     timeout: 9000
+        //   });
+        // }
       }
     });
 
@@ -340,7 +374,7 @@ console.log(1);
     });
   }
 
-  var getClickedFileFullPath = function(data) {
+  var getClickedPath = function(data) {
     var path = data.node.text + '/';
     var arrParents = data.node.parents;
 
@@ -357,7 +391,10 @@ console.log(1);
     // http://gitlab.xxx.cn /   mobile/m-web           /blob/   master            /     src/main/webapp/resource/loader.js
     var href = originUrl + '/' + path_with_namespace + '/blob/' + repository_ref + '/' + path;
 
-    return href;
+    return {
+      filePath: path,
+      fullPath: href,
+    };
   }
 
   var handleToggleBtn = function() {
@@ -455,6 +492,16 @@ console.log(1);
         }
       }
 
+      // gitlab 9.x
+      if (!path_with_namespace) {
+        path_with_namespace = $('header .header-content .title a.project-item-select-holder').attr('href');
+        var firstChar = path_with_namespace && path_with_namespace.substring(0, 1);
+        if (firstChar && firstChar === '/') {
+          path_with_namespace = path_with_namespace.substr(1);
+        }
+      }
+
+      // gitlab 8.x
       if (!path_with_namespace) {
         path_with_namespace = $('.home a').attr('href');
         var firstChar = path_with_namespace && path_with_namespace.substring(0, 1);
@@ -503,8 +550,6 @@ console.log(1);
   // --------------------------------- export ---------------------------------
 
   var init = function() {
-    var wholeText;
-
     if ($('head script[type="text/javascript"]').contents()[0]) {
       wholeText = $('head script[type="text/javascript"]').contents()[0]['wholeText'];
     }
@@ -519,11 +564,14 @@ console.log(1);
       }
     }
 
-    private_token = getPrivateToken(wholeText);
-
-    if (!private_token) {
+    $.Deferred(getPrivateToken)　　
+    .done(function() {
+      console.log("哈哈，成功了！", private_token);
+    })
+    .fail(function() {
+      console.log("出错啦！");
       return;
-    }
+    });
 
     createBtn();
 
@@ -584,7 +632,6 @@ console.log(1);
 // if exist jQuery object
 if (jQuery) {
   $(function() {
-
     GitlabTree.init();
     GitlabTree.action();
 
