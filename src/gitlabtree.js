@@ -78,8 +78,10 @@ var GitlabTree = (function($) {
     apiRepoTree = apiRootUrl + project_id + '/repository/tree';
     apiFileContent = apiRootUrl + project_id + '/repository/files/';
 
-    var tmpClassName = $('.container').size() ? '.container' : '.content-wrapper';
-    initContainerML = tmpClassName && $(tmpClassName) && $(tmpClassName).css('margin-left') && $(tmpClassName).css('margin-left').replace('px', '');
+    // var tmpClassName = $('.container').length > 0 ? '.container' : '.content-wrapper';
+    // initContainerML = tmpClassName && $(tmpClassName) && $(tmpClassName).css('margin-left') && $(tmpClassName).css('margin-left').replace('px', '');
+    initContainerML = $('.content-wrapper .container-fluid').offset().left;
+    console.log('initContainerML = ' + initContainerML);
 
     localStorage.removeItem('loadedDirs');
   }
@@ -142,7 +144,6 @@ var GitlabTree = (function($) {
   // path = "java/main/src/"
   //    --> "src/main/java"
   var revertPath = function(revertedPathString) {
-
     var retString = '';
     var arrString = revertedPathString.split('/');
 
@@ -340,16 +341,19 @@ var GitlabTree = (function($) {
         // fix pjax link.href can't contains '#'
         var snode = $jstree.jstree(true).get_node(selectNode, true);
         $(snode.find('a'))[0].href = href;
+        console.log('href = ' + href);
+        window.location.href = href;
 
-        if ($('#blob-content-holder').length > 0) {
-          // 只能这样写否则就不work了……
-          $(document).pjax('.gitlab-tree nav a.jstree-clicked', '#blob-content-holder', {
-            fragment: '#blob-content-holder',
-            container: '#blob-content-holder',
-            timeout: 650,
-            url: href,
-          });
-        }
+        // 暂时注释：Gitlab9.x无法使用pjax方式无刷新打开code file,将
+        // if ($('#blob-content-holder').length > 0) {
+        //   // 只能这样写否则就不work了……
+        //   $(document).pjax('.gitlab-tree nav a.jstree-clicked', '#blob-content-holder', {
+        //     fragment: '#blob-content-holder',
+        //     container: '#blob-content-holder',
+        //     timeout: 650,
+        //     url: href,
+        //   });
+        // }
         // else if ($('.blob-content-holder').length > 0) {
         //   console.log(3);
         //   $(document).pjax('.gitlab-tree nav a.jstree-clicked', '.file-holder', {
@@ -357,6 +361,7 @@ var GitlabTree = (function($) {
         //     timeout: 9000
         //   });
         // }
+        // ----- Comment End
       }
     });
 
@@ -433,21 +438,29 @@ var GitlabTree = (function($) {
   }
 
   var updateLayoutUI = function(operateType) {
+    // update Gitlab 9.x
+    // var offsetContainer = $('.content-wrapper .container-fluid').offset().left;
+    // if (offsetContainer < 300) {
+    //   $('.content-wrapper .container-fluid').css('margin-left', '300px');
+    //   return;
+    // }
+
+    // $('.content-wrapper .container-fluid').css('margin-left', '300px');
+
 
     var screenWidth = window.innerWidth;
-    var tmpClassName = $('.container').size() ? '.container' : '.content-wrapper';
-    var currentContainerML = $(tmpClassName).css('margin-left').replace('px', '');
-    if (tmpClassName == '.content-wrapper') return; // don't change margin-left
+    var tmpClassName = $('.container').length > 0 ? '.container' : '.content-wrapper .container-fluid';
+    var currentContainerML = $('.content-wrapper .container-fluid').offset().left;
+    // if (tmpClassName == '.content-wrapper') return; // don't change margin-left
+    console.log('updateLayoutUI->initContainerML = ' + initContainerML);
     if (operateType === 'hide') {
-
       if (+currentContainerML > +initContainerML) {
-        $(tmpClassName).css('margin-left', initContainerML + 'px');
+        $(tmpClassName).offset({left: initContainerML});
       }
-
     } else {
-
       if (+currentContainerML < 300) {
-        $(tmpClassName).css('margin-left', '300px');
+        // $(tmpClassName).css('margin-left', '300px');
+        $(tmpClassName).offset({left: 300})
       }
     }
   }
@@ -546,6 +559,10 @@ var GitlabTree = (function($) {
     $('.open-tree').hide();
   }
 
+  $(window).resize(function() {
+    initContainerML = $('.content-wrapper .container-fluid').offset().left;
+    console.log('resize->initContainerML = ' + initContainerML);
+  });
 
   // --------------------------------- export ---------------------------------
 
@@ -634,6 +651,5 @@ if (jQuery) {
   $(function() {
     GitlabTree.init();
     GitlabTree.action();
-
   });
 }
