@@ -18,6 +18,8 @@ var GitlabTree = (function($) {
     wholeText,
     $jstree;
 
+  window.treee = $jstree;
+
   // 获取private_token
   var getPrivateToken = function(dtd) {
     var arrXmlNode;
@@ -83,9 +85,79 @@ var GitlabTree = (function($) {
     initContainerML = $('.content-wrapper .container-fluid').offset().left;
     console.log('initContainerML = ' + initContainerML);
 
-    localStorage.removeItem('loadedDirs');
   }
 
+  var handleRefresh = function() {
+    // localStorage.removeItem('loadedDirs');
+    var strClickedDir = localStorage.getItem('loadedDirs');
+    console.log(strClickedDir);
+    var arrClickedDir = strClickedDir && strClickedDir.split(',') || [];
+    if (arrClickedDir.length > 0) {
+      var lastElement = arrClickedDir[arrClickedDir.length - 1];
+      console.log(lastElement);
+      showGitlabTree();
+
+
+
+
+      // 获取子目录结构
+      $.get(apiRepoTree, {
+        private_token: private_token,
+        id: project_id,
+        path: lastElement,
+        ref_name: repository_ref
+      }, function(result) {
+
+        // var arrClickedDir = localStorage.getItem('loadedDirs');
+        // if (arrClickedDir) {
+        //   arrClickedDir = arrClickedDir.split(',');
+        //   arrClickedDir.push(path);
+        // }
+
+        // if (arrClickedDir && Array.isArray(arrClickedDir)) {
+        //   localStorage.setItem('loadedDirs', arrClickedDir.join(','));
+        // } else {
+        //   localStorage.setItem('loadedDirs', path);
+        // }
+
+        var nodesDisplay = [];
+        result.forEach(function(item) {
+          var singleObj = {};
+          singleObj.text = item.name;
+
+          if (item.type === 'tree') {
+            singleObj.children = [];
+            singleObj.data = 'tree';
+            singleObj.icon = 'fa fa-folder';
+          } else if (item.type === 'blob') {
+            singleObj.icon = 'fa fa-file-o';
+            singleObj.data = 'blob';
+          }
+
+          nodesDisplay.push(singleObj);
+        });
+        
+        var selectNode = $jstree.jstree('get_selected');
+        nodesDisplay.forEach(function(item) {
+          $jstree.jstree(true).create_node(selectNode, item, 'last');
+        });
+
+        // $(".gitlab-tree nav").jstree(true).open_all();
+        // $(".gitlab-tree nav").jstree(true).close_all();
+        $jstree.jstree(true).open_node(selectNode);
+
+      });
+
+
+    }
+    // src,tools,tools/lib,tools/sh
+    // clickNode();
+    // $jstree.on('trigger');
+    // $jstree.trigger('open_all');
+    // $("select_node.jstree").click(function() {
+    //   console.log('click be me.');
+    // });
+  }
   // 处理右侧gitlab的宽度
   var hackStyle = function() {
     if (location.href.indexOf('gitlab.com') > -1) {
@@ -205,7 +277,6 @@ var GitlabTree = (function($) {
 
   // 构建一颗子树
   var createGitlabTree = function(result) {
-
     var subTreeData = [];
     result.forEach(function(item) {
       var singleObj = {};
@@ -229,12 +300,14 @@ var GitlabTree = (function($) {
         'check_callback': true
       },
       plugins: ['wholerow']
+    }).on('ready.jstree', function() {
+      console.log('ready .... jstree');
+      handleRefresh();
     });
   }
 
   // 监听tree node 事件
-  var selectNode = function() {
-
+  var clickNode = function() {
     $jstree.on("select_node.jstree", function(e, data) {
       var selectNode = $jstree.jstree('get_selected');
 
@@ -266,7 +339,7 @@ var GitlabTree = (function($) {
           arrClickedDir = arrClickedDir.split(',');
         }
 
-        if (arrClickedDir && arrClickedDir.indexOf(path) > -1) {
+        if (arrClickedDir && (arrClickedDir[arrClickedDir.length - 1] === path)) {
           console.log('loaded the same path, abort');
           return;
         }
@@ -624,7 +697,7 @@ var GitlabTree = (function($) {
 
               createGitlabTree(result);
 
-              selectNode();
+              clickNode();
 
               handlePJAX();
 
