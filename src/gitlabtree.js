@@ -638,9 +638,7 @@ var GitlabTree = (function($, win) {
     $('.open-tree').hide();
   }
 
-  $(window).resize(function() {
-    updateLayoutUI('show');
-  });
+  
 
   // --------------------------------- export ---------------------------------
 
@@ -666,6 +664,10 @@ var GitlabTree = (function($, win) {
     $.Deferred(getPrivateToken)　　
     .done(function() {
       console.log("哈哈，成功了！", private_token);
+
+      $(window).resize(function() {
+        updateLayoutUI('show');
+      });
     })
     .fail(function() {
       console.log("出错啦！");
@@ -677,10 +679,6 @@ var GitlabTree = (function($, win) {
     showSpinner();
 
     initVariables();
-
-    chrome.tabs.onRemoved.addListener(function(tabid, removed) {
-     alert("tab closed")
-    });
   }
 
   var getApiProjects = function() {
