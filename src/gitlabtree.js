@@ -26,17 +26,21 @@ var GitlabTree = (function($, win) {
       wholeText = $('head script[type="text/javascript"]').contents()[0]['wholeText'];
     }
 
-    if (!wholeText) {
+    if (wholeText) {
+      if (!/window.gon/ig.test(wholeText)) {
+        return;
+      }
+    } else {
       if ($('head script').contents()[0]) {
         wholeText = $('head script').contents()[0]['wholeText'];
       }
 
       if (!wholeText) {
         return;
-      }
-
-      if (!/window.gon/ig.test(wholeText)) {
-        return;
+      } else {
+        if (!/window.gon/ig.test(wholeText)) {
+          return;
+        }
       }
     }
 
@@ -81,7 +85,11 @@ var GitlabTree = (function($, win) {
     $.ajax(window.location.origin + '/profile/account')
       .then(function(data, status) {
         private_token = data && $(data).find('#private-token').val();
-        callback && callback(private_token);
+        if (private_token) {
+          callback && callback(private_token);
+        } else {
+          console.log('private_token not found.');
+        }
       })
       .fail(function(err) {
         if (err.status && err.status === 401) {
