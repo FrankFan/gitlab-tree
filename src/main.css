@@ -121,7 +121,7 @@ a.gitlabtree_toggle {
     height: 30px;
     position: fixed;
     left: 10px;
-    top: 5px;
+    top: 10px;
     background-color: #fff;
     color: #446e9b;
     font-size: 30px !important;
@@ -134,10 +134,13 @@ a.gitlabtree_toggle {
 
 .open-tree.busy {
     background-color: #474D57;
-    top: 0px;
+    top: 10px;
 }
 
 .open-tree i {
+    position: absolute;
+    left: 2.5px;
+    top: 2.5px;
     font-size: 25px;
 }
 

@@ -15,13 +15,30 @@ var GitlabTree = (function($, win) {
     apiProjects,
     originUrl,
     initContainerML,
-    wholeText,
     $jstree;
 
-  // 获取private_token
   var getPrivateToken = function(dtd) {
     var arrXmlNode;
     var objXml = {};
+    var wholeText;
+
+    if ($('head script[type="text/javascript"]').contents()[0]) {
+      wholeText = $('head script[type="text/javascript"]').contents()[0]['wholeText'];
+    }
+
+    if (!wholeText) {
+      if ($('head script').contents()[0]) {
+        wholeText = $('head script').contents()[0]['wholeText'];
+      }
+
+      if (!wholeText) {
+        return;
+      }
+
+      if (!/window.gon/ig.test(wholeText)) {
+        return;
+      }
+    }
 
     if ($('head script[type="text/javascript"]').contents()[0]) {
       arrXmlNode = wholeText.toString().split(';')
@@ -49,12 +66,12 @@ var GitlabTree = (function($, win) {
       private_token = private_token.replace(/\"/g, '');
     } else {
       tryToGetTokenInGitlab9(function(result) {
-        if (result) {
+        if (result && result != 401) {
           private_token = result;
-          dtd.resolve();
+          dtd.resolve(true);
         } else {
           quit();
-          dtd.reject();
+          dtd.reject(false);
         }
       });
     }
@@ -65,6 +82,13 @@ var GitlabTree = (function($, win) {
       .then(function(data, status) {
         private_token = data && $(data).find('#private-token').val();
         callback && callback(private_token);
+      })
+      .fail(function(err) {
+        if (err.status && err.status === 401) {
+          console.log('没有登录');
+          callback && callback(err.status);
+          return;
+        }
       });
   }
 
@@ -183,6 +207,7 @@ var GitlabTree = (function($, win) {
     //   console.log('click be me.');
     // });
   }
+  
   // 处理右侧gitlab的宽度
   var hackStyle = function() {
     if (location.href.indexOf('gitlab.com') > -1) {
@@ -638,47 +663,31 @@ var GitlabTree = (function($, win) {
     $('.open-tree').hide();
   }
 
-  
-
-  // --------------------------------- export ---------------------------------
-
-  var init = function() {
-    if ($('head script[type="text/javascript"]').contents()[0]) {
-      wholeText = $('head script[type="text/javascript"]').contents()[0]['wholeText'];
-    }
-
-    if (!wholeText) {
-      if ($('head script').contents()[0]) {
-        wholeText = $('head script').contents()[0]['wholeText'];
-      }
-
-      if (!wholeText) {
-        return;
-      }
-
-      if (!/window.gon/ig.test(wholeText)) {
-        return;
-      }
-    }
-
-    $.Deferred(getPrivateToken)　　
-    .done(function() {
-      console.log("哈哈，成功了！", private_token);
-
-      $(window).resize(function() {
-        updateLayoutUI('show');
+  var init = function(next) {
+    var p = new Promise(function(resolve, reject) {
+      $.Deferred(getPrivateToken)
+      .done(function(status) {
+        resolve(status);
+        console.log("get token ", private_token);
+        $(window).resize(function() {
+          updateLayoutUI('show');
+        });
+        createBtn();
+        showSpinner();
+        initVariables();
+      })
+      .fail(function(status) {
+        console.log("出错啦！", status);
+        reject(status);
       });
-    })
-    .fail(function() {
-      console.log("出错啦！");
-      return;
     });
 
-    createBtn();
-
-    showSpinner();
-
-    initVariables();
+    p.then(function(status) {
+      next();
+    }).catch(function(status) {
+      console.error('Error ', status);
+      return;
+    });
   }
 
   var getApiProjects = function() {
@@ -686,7 +695,6 @@ var GitlabTree = (function($, win) {
         private_token: private_token
       })
       .done(function(repos) {
-
         var checkResult = checkRepos(repos);
         if (checkResult == false) {
           return;
@@ -701,25 +709,16 @@ var GitlabTree = (function($, win) {
           })
           .done(function(result) {
             hideSpinner();
-
             if (isFilesTab()) {
-
               createGitlabTreeContainer();
-
               createGitlabTree(result);
-
               clickNode();
-
               handlePJAX();
-
               handleToggleBtn();
-
               hotkey();
-
               hackStyle();
             }
           });
-
       });
   }
 
@@ -729,11 +728,9 @@ var GitlabTree = (function($, win) {
   }
 })(jQuery, window);
 
-
 // if exist jQuery object
 if (jQuery) {
   $(function() {
-    GitlabTree.init();
-    GitlabTree.action();
+    GitlabTree.init(GitlabTree.action);
   });
 }
