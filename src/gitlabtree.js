@@ -5,7 +5,6 @@
  */
 
 var GitlabTree = (function($, win) {
-  // 全局变量
   var private_token,
     project_id,
     repository_ref,
@@ -405,8 +404,8 @@ var GitlabTree = (function($, win) {
           path: path,
           ref_name: repository_ref
         }, function(result) {
-          var arrClickedDir = localStorage.getItem('loadedDirs');
-          if (arrClickedDir && Array.isArray(arrClickedDir)) {
+          var arrClickedDir = getLocalStorageData().arrClickedDir;
+          if (arrClickedDir && arrClickedDir.length > 0) {
             arrClickedDir.push(path);
             localStorage.setItem('loadedDirs', arrClickedDir.join(','));
           } else {
@@ -495,7 +494,7 @@ var GitlabTree = (function($, win) {
 
     path = revertPath(path);
 
-    // http://gitlab.xxx.cn /   mobile/m-web           /blob/   master            /     src/main/webapp/resource/loader.js
+    // http://gitlab.xxx.com /   mobile/m-web           /blob/   master            /     src/main/webapp/resource/loader.js
     var href = originUrl + '/' + path_with_namespace + '/blob/' + repository_ref + '/' + path;
 
     return {
