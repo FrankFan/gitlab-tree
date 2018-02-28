@@ -93,7 +93,7 @@ var GitlabTree = (function($, win) {
       })
       .fail(function(err) {
         if (err.status && err.status === 401) {
-          console.log('没有登录');
+          console.log('Not Login.');
           callback && callback(err.status);
           return;
         }
@@ -174,10 +174,10 @@ var GitlabTree = (function($, win) {
     // jstree-wholerow jstree-wholerow-clicked
   }
 
-    // 转换
-    // src/main/webapp 
-    // --------->
-    // ['src', 'src/main', 'src/main/webapp']
+  // 转换
+  // src/main/webapp 
+  // --------->
+  // ['src', 'src/main', 'src/main/webapp']
   var makeRequestArr = function(str) {
     var arr = [];
     var arrSplited = str.split('/');
@@ -348,10 +348,8 @@ var GitlabTree = (function($, win) {
     $('.gitlab-tree span.branch').text(repository_ref);
   }
 
-  // 构建一颗树
   var createGitlabTree = function(result) {
     var treeData = generateTreeNodes(result);
-    // 实例化一棵树
     $jstree = $('.gitlab-tree nav')
       .jstree({
         'core': {
@@ -366,7 +364,6 @@ var GitlabTree = (function($, win) {
       });
   }
 
-  // 监听tree node 事件
   var clickNode = function() {
     $jstree.on("select_node.jstree", function(e, data) {
       var selectNode = $jstree.jstree('get_selected');
@@ -396,13 +393,12 @@ var GitlabTree = (function($, win) {
         if (arrClickedDir) {
           arrClickedDir = arrClickedDir.split(',');
         }
-        // 如果已经加载过了，就不要重复加载了
+
         if (arrClickedDir && (arrClickedDir[arrClickedDir.length - 1] === path)) {
           console.log('loaded the same path, abort');
           return;
         }
 
-        // 获取子目录结构
         $.get(apiRepoTree, {
           private_token: private_token,
           id: project_id,
@@ -432,8 +428,6 @@ var GitlabTree = (function($, win) {
         var arrClickedDir = localStorage.getItem('loadedDirs');
         if (arrClickedDir) {
           arrClickedDir = arrClickedDir.split(',');
-          
-          // 如果已经加载过了，就不要重复加载了
           if (arrClickedDir && (arrClickedDir[arrClickedDir.length - 1] === filePath)) {
             console.log('loaded the same path, abort');
             return;
