@@ -115,7 +115,7 @@ var GitlabTree = (function($, win) {
     console.log('initContainerML = ' + initContainerML);
   }
 
-  var generateDisplayNodes = function(serverResult) {
+  var generateTreeNodes = function(serverResult) {
     var nodesDisplay = [];
     serverResult.forEach(function(item) {
       var singleObj = {};
@@ -200,32 +200,37 @@ var GitlabTree = (function($, win) {
     Promise.all(promises)
       .then(function(data) {
         data.forEach(function(item, index) {
-          var nodesDisplay = generateDisplayNodes(item);
+          var nodesDisplay = generateTreeNodes(item);
+          var cssSelector = '';
           if (index === 0) {
-            $('.jstree .jstree-container-ul').find('li a').each(function (index, item) {
-              var text = $(item).text().trim();
-              if(text === requestPath[0]) {
-                var nodeid = $(this).parent().attr('id');
-                createNodeById(nodesDisplay, nodeid);
-              }
-            });
+            cssSelector = '.jstree .jstree-container-ul li a';
           } else {
-            $('.jstree .jstree-container-ul li.jstree-open ul li').each(function (index, element) {
-              var text = $(element).text().trim();
-              var nodeid = element.id;
-              if(lastElement.split('/').indexOf(text) > -1) {
-                createNodeById(nodesDisplay, nodeid);
-              }
-            });
+            cssSelector = '.jstree .jstree-container-ul li.jstree-open ul li';
           }
+          expandSubTreeByJSON(cssSelector, requestPath, lastElement, nodesDisplay);
+
+          // 打开面板
+          showGitlabTree();
         });
       })
       .catch(function(err) {
         console.error(err);
       });
+  }
 
-    // 打开面板
-    showGitlabTree();
+  // 展开子树
+  var expandSubTreeByJSON = function(cssSelector, requestPath, lastElement, nodesDisplay) {
+    $(cssSelector).each(function (index, element) {
+      var nodeid = '';
+      var text = $(element).text().trim();
+      if (text === requestPath[0]) {
+        nodeid = $(this).parent().attr('id');
+        createNodeById(nodesDisplay, nodeid);
+      } else if(lastElement.split('/').indexOf(text) > -1) {
+        nodeid = element.id;
+        createNodeById(nodesDisplay, nodeid);
+      }
+    });
   }
   
   // 处理右侧gitlab的宽度
@@ -343,35 +348,22 @@ var GitlabTree = (function($, win) {
     $('.gitlab-tree span.branch').text(repository_ref);
   }
 
-  // 构建一颗子树
+  // 构建一颗树
   var createGitlabTree = function(result) {
-    var subTreeData = [];
-    result.forEach(function(item) {
-      var singleObj = {};
-      singleObj.text = item.name;
-      if (item.type === 'tree') {
-        singleObj.children = [];
-        singleObj.data = 'tree';
-        singleObj.icon = 'fa fa-folder';
-      } else if (item.type === 'blob') {
-        singleObj.icon = 'fa fa-file-o';
-        singleObj.data = 'blob';
-      }
-      subTreeData.push(singleObj);
-    });
-
+    var treeData = generateTreeNodes(result);
     // 实例化一棵树
-    $jstree = $('.gitlab-tree nav').jstree({
-      'core': {
-        'data': subTreeData,
-        'check_callback': true
-      },
-      plugins: ['wholerow']
-    })
-    .on('ready.jstree', function(event, data) {
-      console.log(' ... jstree is ready ...');
-      handleRefresh();
-    });
+    $jstree = $('.gitlab-tree nav')
+      .jstree({
+        'core': {
+          'data': treeData,
+          'check_callback': true
+        },
+        plugins: ['wholerow']
+      })
+      .on('ready.jstree', function(event, data) {
+        console.log(' ... jstree is ready ...');
+        handleRefresh();
+      });
   }
 
   // 监听tree node 事件
@@ -418,38 +410,16 @@ var GitlabTree = (function($, win) {
           ref_name: repository_ref
         }, function(result) {
           var arrClickedDir = localStorage.getItem('loadedDirs');
-          if (arrClickedDir) {
-            arrClickedDir = arrClickedDir.split(',');
-            arrClickedDir.push(path);
-          }
-
           if (arrClickedDir && Array.isArray(arrClickedDir)) {
+            arrClickedDir.push(path);
             localStorage.setItem('loadedDirs', arrClickedDir.join(','));
           } else {
             localStorage.setItem('loadedDirs', path);
           }
-
-          var nodesDisplay = [];
-          result.forEach(function(item) {
-            var singleObj = {};
-            singleObj.text = item.name;
-
-            if (item.type === 'tree') {
-              singleObj.children = [];
-              singleObj.data = 'tree';
-              singleObj.icon = 'fa fa-folder';
-            } else if (item.type === 'blob') {
-              singleObj.icon = 'fa fa-file-o';
-              singleObj.data = 'blob';
-            }
-
-            nodesDisplay.push(singleObj);
-          });
-
+          var nodesDisplay = generateTreeNodes(result);
           nodesDisplay.forEach(function(item) {
             var ids = $jstree.jstree(true).create_node(selectNode, item, 'last');
           });
-
           // $(".gitlab-tree nav").jstree(true).open_all();
           // $(".gitlab-tree nav").jstree(true).close_all();
           $jstree.jstree(true).open_node(selectNode);
