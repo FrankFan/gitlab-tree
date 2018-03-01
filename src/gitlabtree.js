@@ -145,6 +145,14 @@ var GitlabTree = (function($, win) {
     }
   }
 
+  var setLocalStorageData = function(str) {
+    if (str.length === 0) {
+      return;
+    } else {
+      localStorage.setItem('loadedDirs', str);
+    }
+  }
+
   var getResultJson = function(path) {
     var promise = new Promise(function(resolve, reject) {
       $.get(apiRepoTree, {
@@ -186,8 +194,8 @@ var GitlabTree = (function($, win) {
   }
 
   var handleRefresh = function() {
-    var lastElement = getLocalStorageData().lastElement;
-    var requestPath = lastElement && makeRequestArr(lastElement);
+    var lastElement = getLocalStorageData().lastElement || '';
+    var requestPath = lastElement ? makeRequestArr(lastElement) : [];
     var promises = requestPath.map(function(path) {
       return getResultJson(path);
     });
@@ -391,13 +399,8 @@ var GitlabTree = (function($, win) {
 
         // path = "java/main/src/"
         path = revertPath(path);
-
-        var arrClickedDir = localStorage.getItem('loadedDirs');
-        if (arrClickedDir) {
-          arrClickedDir = arrClickedDir.split(',');
-        }
-
-        if (arrClickedDir && (arrClickedDir[arrClickedDir.length - 1] === path)) {
+        var arrAllDirs = getLocalStorageData().arrAllLoadedDirs;
+        if (arrAllDirs[arrAllDirs.length - 1] === path) {
           console.log('loaded the same path, abort');
           return;
         }
@@ -411,9 +414,9 @@ var GitlabTree = (function($, win) {
           var arrClickedDir = getLocalStorageData().arrAllLoadedDirs;
           if (arrClickedDir && arrClickedDir.length > 0) {
             arrClickedDir.push(path);
-            localStorage.setItem('loadedDirs', arrClickedDir.join(','));
+            setLocalStorageData(arrClickedDir.join(','));
           } else {
-            localStorage.setItem('loadedDirs', path);
+            setLocalStorageData(path);
           }
           var nodesDisplay = generateTreeNodes(result);
           nodesDisplay.forEach(function(item) {
@@ -424,49 +427,21 @@ var GitlabTree = (function($, win) {
           $jstree.jstree(true).open_node(selectNode);
         });
       } else { // blob
-
         var href = getClickedPath(data).fullPath;
         var filePath = getClickedPath(data).filePath;
         
-        var arrClickedDir = localStorage.getItem('loadedDirs');
-        if (arrClickedDir) {
-          arrClickedDir = arrClickedDir.split(',');
-          if (arrClickedDir && (arrClickedDir[arrClickedDir.length - 1] === filePath)) {
-            console.log('loaded the same path, abort');
-            return;
-          }
-
-          if (arrClickedDir.indexOf(filePath) < 0) {
-            arrClickedDir.push(filePath);
-          }
-        }        
-
-        if (arrClickedDir && Array.isArray(arrClickedDir)) {
-          localStorage.setItem('loadedDirs', arrClickedDir.join(','));
-        } else {
-          localStorage.setItem('loadedDirs', filePath);
+        var arrClickedDir = getLocalStorageData().arrAllLoadedDirs;
+        if (arrClickedDir[arrClickedDir.length - 1] === filePath) {
+          console.log('loaded the same path, abort');
+          return;
         }
-
+        if (arrClickedDir && arrClickedDir.indexOf(filePath) < 0) {
+          arrClickedDir.push(filePath);
+          setLocalStorageData(arrClickedDir.join(','));
+        } else {
+          setLocalStorageData(filePath);
+        }
         window.location.href = href;
-
-        // 暂时注释：Gitlab9.x无法使用pjax方式无刷新打开code file,将
-        // if ($('#blob-content-holder').length > 0) {
-        //   // 只能这样写否则就不work了……
-        //   $(document).pjax('.gitlab-tree nav a.jstree-clicked', '#blob-content-holder', {
-        //     fragment: '#blob-content-holder',
-        //     container: '#blob-content-holder',
-        //     timeout: 650,
-        //     url: href,
-        //   });
-        // }
-        // else if ($('.blob-content-holder').length > 0) {
-        //   console.log(3);
-        //   $(document).pjax('.gitlab-tree nav a.jstree-clicked', '.file-holder', {
-        //     fragment: '.file-holder',
-        //     timeout: 9000
-        //   });
-        // }
-        // ----- Comment End
       }
     });
 
@@ -544,7 +519,6 @@ var GitlabTree = (function($, win) {
   var updateLayoutUI = function(operateType) {
     var tmpClassName = $('.container').length > 0 ? '.container' : '.content-wrapper .container-fluid';
     var currentContainerML = $(tmpClassName).offset() && $(tmpClassName).offset().left;
-    console.log('updateLayoutUI->initContainerML = ' + initContainerML);
     if (operateType === 'hide') {
       if (+currentContainerML > +initContainerML) {
         $(tmpClassName).offset({left: initContainerML});
