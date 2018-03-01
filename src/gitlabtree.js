@@ -4,30 +4,50 @@
  * @Last Modified by:  FrankFan
  */
 
-var GitlabTree = (function($) {
-  // 全局变量
+var GitlabTree = (function($, win) {
   var private_token,
     project_id,
     repository_ref,
     apiRepoTree,
+    apiFileContent,
     path_with_namespace,
     apiProjects,
     originUrl,
     initContainerML,
     $jstree;
 
-  // 获取private_token
-  var getPrivateToken = function(strXml) {
+  var getPrivateToken = function(dtd) {
     var arrXmlNode;
-    // var private_token;
     var objXml = {};
-
+    var wholeText;
 
     if ($('head script[type="text/javascript"]').contents()[0]) {
-      arrXmlNode = strXml.toString().split(';')
+      wholeText = $('head script[type="text/javascript"]').contents()[0]['wholeText'];
+    }
+
+    if (wholeText) {
+      if (!/window.gon/ig.test(wholeText)) {
+        return;
+      }
     } else {
       if ($('head script').contents()[0]) {
-        arrXmlNode = strXml.toString().split(';')
+        wholeText = $('head script').contents()[0]['wholeText'];
+      }
+
+      if (!wholeText) {
+        return;
+      } else {
+        if (!/window.gon/ig.test(wholeText)) {
+          return;
+        }
+      }
+    }
+
+    if ($('head script[type="text/javascript"]').contents()[0]) {
+      arrXmlNode = wholeText.toString().split(';')
+    } else {
+      if ($('head script').contents()[0]) {
+        arrXmlNode = wholeText.toString().split(';')
       } else {
         return false;
       }
@@ -48,11 +68,35 @@ var GitlabTree = (function($) {
     if (private_token) {
       private_token = private_token.replace(/\"/g, '');
     } else {
-      quit();
-      return false;
+      tryToGetTokenInGitlab9(function(result) {
+        if (result && result != 401) {
+          private_token = result;
+          dtd.resolve(true);
+        } else {
+          quit();
+          dtd.reject(false);
+        }
+      });
     }
+  }
 
-    return private_token;
+  var tryToGetTokenInGitlab9 = function(callback) {
+    $.ajax(window.location.origin + '/profile/account')
+      .then(function(data, status) {
+        private_token = data && $(data).find('#private-token').val();
+        if (private_token) {
+          callback && callback(private_token);
+        } else {
+          console.log('private_token not found.');
+        }
+      })
+      .fail(function(err) {
+        if (err.status && err.status === 401) {
+          console.log('Not Login.');
+          callback && callback(err.status);
+          return;
+        }
+      });
   }
 
   var initVariables = function() {
@@ -63,14 +107,141 @@ var GitlabTree = (function($) {
     var apiRootUrl = originUrl + '/api/v3/projects/';
     apiProjects = apiRootUrl;
     apiRepoTree = apiRootUrl + project_id + '/repository/tree';
-    var apiFileContent = apiRootUrl + project_id + '/repository/files';
+    apiFileContent = apiRootUrl + project_id + '/repository/files/';
 
-    var tmpClassName = $('.container').size() ? '.container' : '.content-wrapper';
-    initContainerML = $(tmpClassName).css('margin-left').replace('px', '');
-
-    localStorage.removeItem('loadedDirs');
+    var tmpClassName = $('.container').length > 0 ? '.container' : '.content-wrapper .container-fluid';
+    initContainerML = $(tmpClassName).offset() && $(tmpClassName).offset().left;
   }
 
+  var generateTreeNodes = function(serverResult) {
+    var nodesDisplay = [];
+    serverResult.forEach(function(item) {
+      var singleObj = {};
+      singleObj.text = item.name;
+      if (item.type === 'tree') {
+        singleObj.children = [];
+        singleObj.data = 'tree';
+        singleObj.icon = 'fa fa-folder';
+      } else if (item.type === 'blob') {
+        singleObj.icon = 'fa fa-file-o';
+        singleObj.data = 'blob';
+      }
+      nodesDisplay.push(singleObj);
+    });
+    return nodesDisplay;
+  }
+
+  var getLocalStorageData = function() {
+    var strClickedDir = localStorage.getItem('loadedDirs');
+    var lastElement;
+    var arrClickedDir = strClickedDir && strClickedDir.split(',') || [];
+    if (arrClickedDir.length > 0) {
+      lastElement = arrClickedDir[arrClickedDir.length - 1] || '';
+    }
+    return {
+      lastElement: lastElement,
+      arrAllLoadedDirs: arrClickedDir,
+    }
+  }
+
+  var setLocalStorageData = function(str) {
+    if (str.length === 0) {
+      return;
+    } else {
+      localStorage.setItem('loadedDirs', str);
+    }
+  }
+
+  var getResultJson = function(path) {
+    var promise = new Promise(function(resolve, reject) {
+      $.get(apiRepoTree, {
+        private_token: private_token,
+        id: project_id,
+        path: path,
+        ref_name: repository_ref
+      }, function(result) {
+        resolve(result);
+      });
+    });
+    return promise;   
+  }
+
+  var createNodeById = function(nodesDisplay, nodeid) {
+    var cnode = $jstree.jstree(true).get_node(nodeid);
+    if (cnode.data === 'tree') {
+      nodesDisplay.forEach(function(item) {
+        var newNodeObj = $jstree.jstree(true).create_node(cnode, item, 'last', function(data) {
+          // console.log('new node created.');
+          // console.log(data);
+        });
+        $jstree.jstree(true).open_node(cnode);
+      });  
+    } else {
+      console.log('cnode type is ' + cnode.data);
+    }
+  }
+
+  // src/main/webapp 
+  // --------->
+  // ['src', 'src/main', 'src/main/webapp']
+  var makeRequestArr = function(str) {
+    var arr = [];
+    var arrSplited = str.split('/');
+    arr.push(arrSplited[0]);
+    arrSplited.reduce(function(prev, current, currentIndex){
+      var tmpValue =  prev + '/' + current;
+      arr.push(tmpValue);
+      return tmpValue;
+    });
+    return arr;
+  }
+
+  var handleRefresh = function() {
+    var lastElement = getLocalStorageData().lastElement || '';
+    var requestPath = lastElement ? makeRequestArr(lastElement) : [];
+    var promises = requestPath.map(function(path) {
+      return getResultJson(path);
+    });
+    Promise.all(promises)
+      .then(function(data) {
+        if (data.length > 0 && data[0].length > 0) {
+          data.forEach(function(item, index) {
+            var nodesDisplay = generateTreeNodes(item);
+            var cssSelector = (index === 0) ? '.jstree .jstree-container-ul li a' : '.jstree .jstree-container-ul li.jstree-open ul li';
+            expandSubTreeByJSON(cssSelector, requestPath, lastElement, nodesDisplay);
+            showGitlabTree();
+          });
+        } else {
+          $('.jstree .jstree-container-ul li a').each(function(index, item) {
+            var text = $(item).text().trim();
+            if (text === lastElement) {
+              $(this).parent().find('div.jstree-wholerow').addClass('jstree-wholerow-clicked');
+            }
+          });
+          showGitlabTree();
+        }
+      })
+      .catch(function(err) {
+        console.error(err);
+      });
+  }
+
+  var expandSubTreeByJSON = function(cssSelector, requestPath, lastElement, nodesDisplay) {
+    $(cssSelector).each(function (index, element) {
+      var nodeid;
+      var text = $(element).text().trim();
+      if (text === requestPath[0]) {
+        nodeid = $(this).parent().attr('id');
+        // $(this).parent().find('div.jstree-wholerow').addClass('jstree-wholerow-clicked');
+        createNodeById(nodesDisplay, nodeid);
+      } else if(lastElement.split('/').indexOf(text) > -1) {
+        nodeid = element.id;
+        $(this).find('div.jstree-wholerow').addClass('jstree-wholerow-clicked');
+        createNodeById(nodesDisplay, nodeid);
+      }
+    });
+  }
+  
   // 处理右侧gitlab的宽度
   var hackStyle = function() {
     if (location.href.indexOf('gitlab.com') > -1) {
@@ -86,7 +257,6 @@ var GitlabTree = (function($) {
   }
 
   var handlePJAX = function() {
-    console.log('pjax:complete');
     if ($.support.pjax) {
       // $(document).on('pjax:complete', function() {
       //   $('pre code').each(function(i, block) {
@@ -112,18 +282,23 @@ var GitlabTree = (function($) {
 
   // 判断当前是否是Files Tab
   var isFilesTab = function() {
-
     var currentTabText = $('.project-navigation li.active a').text();
     if (currentTabText === 'Files' || $('.nav.nav-sidebar li.active a').text().trim() === 'Files') {
       return true;
     }
+
+    // gitlab 9.x
+    var currentTabText2 = $('.nav-links.sub-nav li.active a').text().trim();
+    if (currentTabText2 === 'Files') {
+      return true;
+    }
+
     return false;
   }
 
   // path = "java/main/src/"
   //    --> "src/main/java"
   var revertPath = function(revertedPathString) {
-
     var retString = '';
     var arrString = revertedPathString.split('/');
 
@@ -150,7 +325,6 @@ var GitlabTree = (function($) {
 
   // 删除数组中指定的元素
   var removeElement = function(index, array) {
-
     if (index >= 0 && index < array.length) {
       for (var i = index; i < array.length; i++) {
         array[i] = array[i + 1];
@@ -182,42 +356,24 @@ var GitlabTree = (function($) {
     $('.gitlab-tree span.branch').text(repository_ref);
   }
 
-
-  // 构建一颗子树
   var createGitlabTree = function(result) {
-
-    var subTreeData = [];
-    result.forEach(function(item) {
-      var singleObj = {};
-      singleObj.text = item.name;
-      if (item.type === 'tree') {
-        singleObj.children = [];
-        singleObj.data = 'tree';
-        singleObj.icon = 'fa fa-folder';
-      } else if (item.type === 'blob') {
-        singleObj.icon = 'fa fa-file-o';
-        singleObj.data = 'blob';
-      }
-
-      subTreeData.push(singleObj);
-    });
-
-    // 实例化一棵树
-    $jstree = $('.gitlab-tree nav').jstree({
-      'core': {
-        'data': subTreeData,
-        'check_callback': true
-      },
-      plugins: ['wholerow']
-    });
+    var treeData = generateTreeNodes(result);
+    $jstree = $('.gitlab-tree nav')
+      .jstree({
+        'core': {
+          'data': treeData,
+          'check_callback': true
+        },
+        plugins: ['wholerow']
+      })
+      .on('ready.jstree', function(event, data) {
+        handleRefresh();
+      });
   }
 
-  // 监听tree node 事件
-  var selectNode = function() {
-
+  var clickNode = function() {
     $jstree.on("select_node.jstree", function(e, data) {
       var selectNode = $jstree.jstree('get_selected');
-
       if (data && data.node && data.node.data == 'tree') {
         var path = data.node.text;
         var currentNodeId = data.node.id;
@@ -239,90 +395,49 @@ var GitlabTree = (function($) {
 
         // path = "java/main/src/"
         path = revertPath(path);
-
-        // 如果已经加载过了，就不要重复加载了
-        var arrClickedDir = localStorage.getItem('loadedDirs');
-        if (arrClickedDir) {
-          arrClickedDir = arrClickedDir.split(',');
-        }
-
-        if (arrClickedDir && arrClickedDir.indexOf(path) > -1) {
+        var arrAllDirs = getLocalStorageData().arrAllLoadedDirs;
+        if (arrAllDirs[arrAllDirs.length - 1] === path) {
           console.log('loaded the same path, abort');
           return;
         }
 
-        // 获取子目录结构
         $.get(apiRepoTree, {
           private_token: private_token,
           id: project_id,
           path: path,
           ref_name: repository_ref
         }, function(result) {
-
-          var arrClickedDir = localStorage.getItem('loadedDirs');
-          if (arrClickedDir) {
-            arrClickedDir = arrClickedDir.split(',');
+          var arrClickedDir = getLocalStorageData().arrAllLoadedDirs;
+          if (arrClickedDir && arrClickedDir.length > 0) {
             arrClickedDir.push(path);
-          }
-
-          if (arrClickedDir && Array.isArray(arrClickedDir)) {
-            localStorage.setItem('loadedDirs', arrClickedDir.join(','));
+            setLocalStorageData(arrClickedDir.join(','));
           } else {
-            localStorage.setItem('loadedDirs', path);
+            setLocalStorageData(path);
           }
-
-          var nodesDisplay = [];
-          result.forEach(function(item) {
-            var singleObj = {};
-            singleObj.text = item.name;
-
-            if (item.type === 'tree') {
-              singleObj.children = [];
-              singleObj.data = 'tree';
-              singleObj.icon = 'fa fa-folder';
-            } else if (item.type === 'blob') {
-              singleObj.icon = 'fa fa-file-o';
-              singleObj.data = 'blob';
-            }
-
-            nodesDisplay.push(singleObj);
-          });
-
+          var nodesDisplay = generateTreeNodes(result);
           nodesDisplay.forEach(function(item) {
-            $jstree.jstree(true).create_node(selectNode, item, 'last');
+            var ids = $jstree.jstree(true).create_node(selectNode, item, 'last');
           });
-
           // $(".gitlab-tree nav").jstree(true).open_all();
           // $(".gitlab-tree nav").jstree(true).close_all();
           $jstree.jstree(true).open_node(selectNode);
-
         });
       } else { // blob
-
-        var href = getClickedFileFullPath(data);
-
-        // fix pjax link.href can't contains '#'
-        var snode = $jstree.jstree(true).get_node(selectNode, true);
-        $(snode.find('a'))[0].href = href;
-
-console.log(1);
-        if ($('.tree-content-holder').length > 0) {
-          console.log(2);
-          // 只能这样写否则就不work了……
-          $(document).pjax('.gitlab-tree nav a.jstree-clicked', '.tree-content-holder', {
-            fragment: '.tree-content-holder',
-            timeout: 9000
-          });
-        } else if ($('.blob-content-holder').length > 0) {
-          console.log(3);
-          $(document).pjax('.gitlab-tree nav a.jstree-clicked', '.blob-content-holder', {
-            fragment: '.blob-content-holder',
-            timeout: 9000
-          });
+        var href = getClickedPath(data).fullPath;
+        var filePath = getClickedPath(data).filePath;
+        
+        var arrClickedDir = getLocalStorageData().arrAllLoadedDirs;
+        if (arrClickedDir[arrClickedDir.length - 1] === filePath) {
+          console.log('loaded the same path, abort');
+          return;
         }
-
-
-
+        if (arrClickedDir && arrClickedDir.indexOf(filePath) < 0) {
+          arrClickedDir.push(filePath);
+          setLocalStorageData(arrClickedDir.join(','));
+        } else {
+          setLocalStorageData(filePath);
+        }
+        window.location.href = href;
       }
     });
 
@@ -340,7 +455,7 @@ console.log(1);
     });
   }
 
-  var getClickedFileFullPath = function(data) {
+  var getClickedPath = function(data) {
     var path = data.node.text + '/';
     var arrParents = data.node.parents;
 
@@ -354,10 +469,13 @@ console.log(1);
 
     path = revertPath(path);
 
-    // http://gitlab.xxx.cn /   mobile/m-web           /blob/   master            /     src/main/webapp/resource/loader.js
+    // http://gitlab.xxx.com /   mobile/m-web           /blob/   master            /     src/main/webapp/resource/loader.js
     var href = originUrl + '/' + path_with_namespace + '/blob/' + repository_ref + '/' + path;
 
-    return href;
+    return {
+      filePath: path,
+      fullPath: href,
+    };
   }
 
   var handleToggleBtn = function() {
@@ -373,7 +491,6 @@ console.log(1);
       if (isFilesTab()) {
         $('body').append(htmlTemplate);
       }
-
 
       $('.open-tree').on('click', function() {
         showGitlabTree();
@@ -396,22 +513,14 @@ console.log(1);
   }
 
   var updateLayoutUI = function(operateType) {
-
-    var screenWidth = window.innerWidth;
-    var tmpClassName = $('.container').size() ? '.container' : '.content-wrapper';
-    var currentContainerML = $(tmpClassName).css('margin-left').replace('px', '');
-    if (tmpClassName == '.content-wrapper') return; // don't change margin-left
+    var tmpClassName = $('.container').length > 0 ? '.container' : '.content-wrapper .container-fluid';
+    var currentContainerML = $(tmpClassName).offset() && $(tmpClassName).offset().left;
     if (operateType === 'hide') {
-
       if (+currentContainerML > +initContainerML) {
-        $(tmpClassName).css('margin-left', initContainerML + 'px');
+        $(tmpClassName).offset({left: initContainerML});
       }
-
     } else {
-
-      if (+currentContainerML < 300) {
-        $(tmpClassName).css('margin-left', '300px');
-      }
+      $(tmpClassName).offset({left: 300})
     }
   }
 
@@ -455,6 +564,16 @@ console.log(1);
         }
       }
 
+      // gitlab 9.x
+      if (!path_with_namespace) {
+        path_with_namespace = $('header .header-content .title a.project-item-select-holder').attr('href');
+        var firstChar = path_with_namespace && path_with_namespace.substring(0, 1);
+        if (firstChar && firstChar === '/') {
+          path_with_namespace = path_with_namespace.substr(1);
+        }
+      }
+
+      // gitlab 8.x
       if (!path_with_namespace) {
         path_with_namespace = $('.home a').attr('href');
         var firstChar = path_with_namespace && path_with_namespace.substring(0, 1);
@@ -499,37 +618,30 @@ console.log(1);
     $('.open-tree').hide();
   }
 
+  var init = function(next) {
+    var p = new Promise(function(resolve, reject) {
+      $.Deferred(getPrivateToken)
+      .done(function(status) {
+        resolve(status);
+        $(window).resize(function() {
+          updateLayoutUI('show');
+        });
+        createBtn();
+        showSpinner();
+        initVariables();
+      })
+      .fail(function(status) {
+        console.warn("Error: ", status);
+        reject(status);
+      });
+    });
 
-  // --------------------------------- export ---------------------------------
-
-  var init = function() {
-    var wholeText;
-
-    if ($('head script[type="text/javascript"]').contents()[0]) {
-      wholeText = $('head script[type="text/javascript"]').contents()[0]['wholeText'];
-    }
-
-    if (!wholeText) {
-      if ($('head script').contents()[0]) {
-        wholeText = $('head script').contents()[0]['wholeText'];
-      }
-
-      if (!wholeText) {
-        return;
-      }
-    }
-
-    private_token = getPrivateToken(wholeText);
-
-    if (!private_token) {
+    p.then(function(status) {
+      next();
+    }).catch(function(status) {
+      console.error('Error: ', status);
       return;
-    }
-
-    createBtn();
-
-    showSpinner();
-
-    initVariables();
+    });
   }
 
   var getApiProjects = function() {
@@ -537,7 +649,6 @@ console.log(1);
         private_token: private_token
       })
       .done(function(repos) {
-
         var checkResult = checkRepos(repos);
         if (checkResult == false) {
           return;
@@ -552,41 +663,28 @@ console.log(1);
           })
           .done(function(result) {
             hideSpinner();
-
             if (isFilesTab()) {
-
               createGitlabTreeContainer();
-
               createGitlabTree(result);
-
-              selectNode();
-
+              clickNode();
               handlePJAX();
-
               handleToggleBtn();
-
               hotkey();
-
               hackStyle();
             }
           });
-
       });
   }
 
   return {
     init: init,
-    action: getApiProjects
+    action: getApiProjects,
   }
-})(jQuery);
-
+})(jQuery, window);
 
 // if exist jQuery object
 if (jQuery) {
   $(function() {
-
-    GitlabTree.init();
-    GitlabTree.action();
-
+    GitlabTree.init(GitlabTree.action);
   });
 }
