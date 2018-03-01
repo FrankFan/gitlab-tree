@@ -193,18 +193,27 @@ var GitlabTree = (function($, win) {
     });
     Promise.all(promises)
       .then(function(data) {
-        data.forEach(function(item, index) {
-          var nodesDisplay = generateTreeNodes(item);
-          var cssSelector = '';
-          if (index === 0) {
-            cssSelector = '.jstree .jstree-container-ul li a';
-          } else {
-            cssSelector = '.jstree .jstree-container-ul li.jstree-open ul li';
-          }
-          expandSubTreeByJSON(cssSelector, requestPath, lastElement, nodesDisplay);
-          // 打开面板
+        if (data.length > 0 && data[0].length > 0) {
+          data.forEach(function(item, index) {
+            var nodesDisplay = generateTreeNodes(item);
+            var cssSelector = '';
+            if (index === 0) {
+              cssSelector = '.jstree .jstree-container-ul li a';
+            } else {
+              cssSelector = '.jstree .jstree-container-ul li.jstree-open ul li';
+            }
+            expandSubTreeByJSON(cssSelector, requestPath, lastElement, nodesDisplay);
+            showGitlabTree();
+          });
+        } else {
+          $('.jstree .jstree-container-ul li a').each(function(index, item) {
+            var text = $(item).text().trim();
+            if (text === lastElement) {
+              $(this).parent().find('div.jstree-wholerow').addClass('jstree-wholerow-clicked');
+            }
+          });
           showGitlabTree();
-        });
+        }
       })
       .catch(function(err) {
         console.error(err);
