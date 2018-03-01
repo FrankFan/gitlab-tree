@@ -111,7 +111,6 @@ var GitlabTree = (function($, win) {
 
     var tmpClassName = $('.container').length > 0 ? '.container' : '.content-wrapper .container-fluid';
     initContainerML = $(tmpClassName).offset() && $(tmpClassName).offset().left;
-    console.log('initContainerML = ' + initContainerML);
   }
 
   var generateTreeNodes = function(serverResult) {
@@ -169,13 +168,17 @@ var GitlabTree = (function($, win) {
 
   var createNodeById = function(nodesDisplay, nodeid) {
     var cnode = $jstree.jstree(true).get_node(nodeid);
-    nodesDisplay.forEach(function(item) {
-      var newNodeObj = $jstree.jstree(true).create_node(cnode, item, 'last', function(data) {
-        // console.log('new node created.');
-        // console.log(data);
-      });
-      $jstree.jstree(true).open_node(cnode);
-    });
+    if (cnode.data === 'tree') {
+      nodesDisplay.forEach(function(item) {
+        var newNodeObj = $jstree.jstree(true).create_node(cnode, item, 'last', function(data) {
+          // console.log('new node created.');
+          // console.log(data);
+        });
+        $jstree.jstree(true).open_node(cnode);
+      });  
+    } else {
+      console.log('cnode type is ' + cnode.data);
+    }
   }
 
   // src/main/webapp 
@@ -204,12 +207,7 @@ var GitlabTree = (function($, win) {
         if (data.length > 0 && data[0].length > 0) {
           data.forEach(function(item, index) {
             var nodesDisplay = generateTreeNodes(item);
-            var cssSelector = '';
-            if (index === 0) {
-              cssSelector = '.jstree .jstree-container-ul li a';
-            } else {
-              cssSelector = '.jstree .jstree-container-ul li.jstree-open ul li';
-            }
+            var cssSelector = (index === 0) ? '.jstree .jstree-container-ul li a' : '.jstree .jstree-container-ul li.jstree-open ul li';
             expandSubTreeByJSON(cssSelector, requestPath, lastElement, nodesDisplay);
             showGitlabTree();
           });
@@ -259,7 +257,6 @@ var GitlabTree = (function($, win) {
   }
 
   var handlePJAX = function() {
-    console.log('pjax:complete');
     if ($.support.pjax) {
       // $(document).on('pjax:complete', function() {
       //   $('pre code').each(function(i, block) {
@@ -370,7 +367,6 @@ var GitlabTree = (function($, win) {
         plugins: ['wholerow']
       })
       .on('ready.jstree', function(event, data) {
-        console.log(' ... jstree is ready ...');
         handleRefresh();
       });
   }
@@ -627,7 +623,6 @@ var GitlabTree = (function($, win) {
       $.Deferred(getPrivateToken)
       .done(function(status) {
         resolve(status);
-        console.info("get token ", private_token);
         $(window).resize(function() {
           updateLayoutUI('show');
         });
@@ -636,7 +631,7 @@ var GitlabTree = (function($, win) {
         initVariables();
       })
       .fail(function(status) {
-        console.warn("出错啦！", status);
+        console.warn("Error: ", status);
         reject(status);
       });
     });
@@ -644,7 +639,7 @@ var GitlabTree = (function($, win) {
     p.then(function(status) {
       next();
     }).catch(function(status) {
-      console.error('Error ', status);
+      console.error('Error: ', status);
       return;
     });
   }
