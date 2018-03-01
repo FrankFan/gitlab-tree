@@ -8,7 +8,7 @@
     "src": "src"
   },
   "scripts": {
-    "start": "echo \" what happened. \" && exit 0"
+    "start": "gulp build"
   },
   "repository": {
     "type": "git",
