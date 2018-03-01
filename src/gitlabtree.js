@@ -168,12 +168,8 @@ var GitlabTree = (function($, win) {
       });
       $jstree.jstree(true).open_node(cnode);
     });
-    // TODO add class
-    // jstree-wholerow jstree-wholerow-hovered
-    // jstree-wholerow jstree-wholerow-clicked
   }
 
-  // 转换
   // src/main/webapp 
   // --------->
   // ['src', 'src/main', 'src/main/webapp']
@@ -190,9 +186,8 @@ var GitlabTree = (function($, win) {
   }
 
   var handleRefresh = function() {
-    var requestPath = [];
     var lastElement = getLocalStorageData().lastElement;
-    requestPath = lastElement && makeRequestArr(lastElement);
+    var requestPath = lastElement && makeRequestArr(lastElement);
     var promises = requestPath.map(function(path) {
       return getResultJson(path);
     });
@@ -207,7 +202,6 @@ var GitlabTree = (function($, win) {
             cssSelector = '.jstree .jstree-container-ul li.jstree-open ul li';
           }
           expandSubTreeByJSON(cssSelector, requestPath, lastElement, nodesDisplay);
-
           // 打开面板
           showGitlabTree();
         });
@@ -217,16 +211,17 @@ var GitlabTree = (function($, win) {
       });
   }
 
-  // 展开子树
   var expandSubTreeByJSON = function(cssSelector, requestPath, lastElement, nodesDisplay) {
     $(cssSelector).each(function (index, element) {
-      var nodeid = '';
+      var nodeid;
       var text = $(element).text().trim();
       if (text === requestPath[0]) {
         nodeid = $(this).parent().attr('id');
+        // $(this).parent().find('div.jstree-wholerow').addClass('jstree-wholerow-clicked');
         createNodeById(nodesDisplay, nodeid);
       } else if(lastElement.split('/').indexOf(text) > -1) {
         nodeid = element.id;
+        $(this).find('div.jstree-wholerow').addClass('jstree-wholerow-clicked');
         createNodeById(nodesDisplay, nodeid);
       }
     });
@@ -404,7 +399,7 @@ var GitlabTree = (function($, win) {
           path: path,
           ref_name: repository_ref
         }, function(result) {
-          var arrClickedDir = getLocalStorageData().arrClickedDir;
+          var arrClickedDir = getLocalStorageData().arrAllLoadedDirs;
           if (arrClickedDir && arrClickedDir.length > 0) {
             arrClickedDir.push(path);
             localStorage.setItem('loadedDirs', arrClickedDir.join(','));
