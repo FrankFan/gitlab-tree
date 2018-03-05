@@ -38,7 +38,7 @@ var GitlabTree = (function($, win) {
         return;
       } else {
         if (!/window.gon/ig.test(wholeText)) {
-          return;
+          // return;
         }
       }
     }
@@ -163,7 +163,7 @@ var GitlabTree = (function($, win) {
         resolve(result);
       });
     });
-    return promise;   
+    return promise;
   }
 
   var createNodeById = function(nodesDisplay, nodeid) {
@@ -175,13 +175,13 @@ var GitlabTree = (function($, win) {
           // console.log(data);
         });
         $jstree.jstree(true).open_node(cnode);
-      });  
+      });
     } else {
       console.log('cnode type is ' + cnode.data);
     }
   }
 
-  // src/main/webapp 
+  // src/main/webapp
   // --------->
   // ['src', 'src/main', 'src/main/webapp']
   var makeRequestArr = function(str) {
@@ -241,7 +241,7 @@ var GitlabTree = (function($, win) {
       }
     });
   }
-  
+
   // 处理右侧gitlab的宽度
   var hackStyle = function() {
     if (location.href.indexOf('gitlab.com') > -1) {
@@ -425,7 +425,7 @@ var GitlabTree = (function($, win) {
       } else { // blob
         var href = getClickedPath(data).fullPath;
         var filePath = getClickedPath(data).filePath;
-        
+
         var arrClickedDir = getLocalStorageData().arrAllLoadedDirs;
         if (arrClickedDir[arrClickedDir.length - 1] === filePath) {
           console.log('loaded the same path, abort');
@@ -623,9 +623,11 @@ var GitlabTree = (function($, win) {
       $.Deferred(getPrivateToken)
       .done(function(status) {
         resolve(status);
-        $(window).resize(function() {
-          updateLayoutUI('show');
-        });
+        if (isFilesTab()) {
+          $(window).resize(function() {
+            updateLayoutUI('show');
+          });
+        }
         createBtn();
         showSpinner();
         initVariables();
