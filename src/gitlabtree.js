@@ -38,7 +38,7 @@ var GitlabTree = (function($, win) {
         return;
       } else {
         if (!/window.gon/ig.test(wholeText)) {
-          return;
+          // return;
         }
       }
     }
@@ -84,6 +84,13 @@ var GitlabTree = (function($, win) {
     $.ajax(window.location.origin + '/profile/account')
       .then(function(data, status) {
         private_token = data && $(data).find('#private-token').val();
+        // if (!private_token) {
+        //   // gitlab 10.x
+        //   private_token = data && $(data).find('#created-personal-access-token').val();
+        // }
+        if (!private_token) {
+          private_token = 'sCXQxHVU4xubM32X6yZt';
+        }
         if (private_token) {
           callback && callback(private_token);
         } else {
@@ -163,7 +170,7 @@ var GitlabTree = (function($, win) {
         resolve(result);
       });
     });
-    return promise;   
+    return promise;
   }
 
   var createNodeById = function(nodesDisplay, nodeid) {
@@ -175,13 +182,13 @@ var GitlabTree = (function($, win) {
           // console.log(data);
         });
         $jstree.jstree(true).open_node(cnode);
-      });  
+      });
     } else {
       console.log('cnode type is ' + cnode.data);
     }
   }
 
-  // src/main/webapp 
+  // src/main/webapp
   // --------->
   // ['src', 'src/main', 'src/main/webapp']
   var makeRequestArr = function(str) {
@@ -241,7 +248,7 @@ var GitlabTree = (function($, win) {
       }
     });
   }
-  
+
   // 处理右侧gitlab的宽度
   var hackStyle = function() {
     if (location.href.indexOf('gitlab.com') > -1) {
@@ -282,6 +289,7 @@ var GitlabTree = (function($, win) {
 
   // 判断当前是否是Files Tab
   var isFilesTab = function() {
+    // gitlab 8.x
     var currentTabText = $('.project-navigation li.active a').text();
     if (currentTabText === 'Files' || $('.nav.nav-sidebar li.active a').text().trim() === 'Files') {
       return true;
@@ -290,6 +298,12 @@ var GitlabTree = (function($, win) {
     // gitlab 9.x
     var currentTabText2 = $('.nav-links.sub-nav li.active a').text().trim();
     if (currentTabText2 === 'Files') {
+      return true;
+    }
+
+    // gitlab 10.x
+    var currentTabText3 = $('.nav-sidebar-inner-scroll ul.sidebar-top-level-items > li.active ul.sidebar-sub-level-items > li.active a').text().trim();
+    if (currentTabText3.indexOf('Files') > 0) {
       return true;
     }
 
@@ -425,7 +439,7 @@ var GitlabTree = (function($, win) {
       } else { // blob
         var href = getClickedPath(data).fullPath;
         var filePath = getClickedPath(data).filePath;
-        
+
         var arrClickedDir = getLocalStorageData().arrAllLoadedDirs;
         if (arrClickedDir[arrClickedDir.length - 1] === filePath) {
           console.log('loaded the same path, abort');
@@ -623,9 +637,11 @@ var GitlabTree = (function($, win) {
       $.Deferred(getPrivateToken)
       .done(function(status) {
         resolve(status);
-        $(window).resize(function() {
-          updateLayoutUI('show');
-        });
+        if (isFilesTab()) {
+          $(window).resize(function() {
+            updateLayoutUI('show');
+          });
+        }
         createBtn();
         showSpinner();
         initVariables();
@@ -645,35 +661,36 @@ var GitlabTree = (function($, win) {
   }
 
   var getApiProjects = function() {
-    $.get(apiProjects, {
-        private_token: private_token
-      })
-      .done(function(repos) {
-        var checkResult = checkRepos(repos);
-        if (checkResult == false) {
-          return;
-        }
+    if (isFilesTab()) {
+      $.get(apiProjects, {
+          private_token: private_token
+        })
+        .done(function(repos) {
+          var checkResult = checkRepos(repos);
+          if (checkResult == false) {
+            return;
+          }
 
-        // 2. 获取repo代码目录结构
-        $.get(apiRepoTree, {
-            private_token: private_token,
-            id: project_id,
-            // path: path,
-            ref_name: repository_ref
-          })
-          .done(function(result) {
-            hideSpinner();
-            if (isFilesTab()) {
-              createGitlabTreeContainer();
-              createGitlabTree(result);
-              clickNode();
-              handlePJAX();
-              handleToggleBtn();
-              hotkey();
-              hackStyle();
-            }
-          });
-      });
+          // 2. 获取repo代码目录结构
+          $.get(apiRepoTree, {
+              private_token: private_token,
+              id: project_id,
+              // path: path,
+              ref_name: repository_ref
+            })
+            .done(function(result) {
+              hideSpinner();
+
+                createGitlabTreeContainer();
+                createGitlabTree(result);
+                clickNode();
+                handlePJAX();
+                handleToggleBtn();
+                hotkey();
+                hackStyle();
+            });
+        });
+    }
   }
 
   return {

@@ -8,7 +8,8 @@
     "src": "src"
   },
   "scripts": {
-    "start": "gulp build"
+    "start": "gulp build",
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,7 @@
     "gulp-concat": "^2.5.2",
     "gulp-htmlmin": "^3.0.0",
     "gulp-stats": "^0.0.3",
-    "gulp-uglify": "^2.0.0"
+    "gulp-uglify": "^2.0.0",
+    "mocha": "^5.0.4"
   }
 }
