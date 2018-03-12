@@ -84,17 +84,19 @@ var GitlabTree = (function($, win) {
     $.ajax(window.location.origin + '/profile/account')
       .then(function(data, status) {
         private_token = data && $(data).find('#private-token').val();
-        // if (!private_token) {
-        //   // gitlab 10.x
-        //   private_token = data && $(data).find('#created-personal-access-token').val();
-        // }
-        if (!private_token) {
-          private_token = 'sCXQxHVU4xubM32X6yZt';
-        }
         if (private_token) {
           callback && callback(private_token);
         } else {
-          console.log('private_token not found.');
+          // Not working
+          $.ajax(window.location.origin + '/profile/personal_access_tokens')
+            .then(function(data, status) {
+              private_token = data && $(data).find('#created-personal-access-token').val();
+              if (private_token) {
+                callback && callback(private_token);
+              } else {
+                console.log('private_token not found.');
+              }
+            });
         }
       })
       .fail(function(err) {
