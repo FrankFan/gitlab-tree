@@ -19,3 +19,5 @@ gitlab提供了各种语言的API,但是唯独没有`js`的。看了 `gitlab` �
   [2] http://www.ueffort.com/pjax-ji-shu/
 
   [3] https://gitlab.com/help/user/profile/personal_access_tokens.md
+
+  [4] https://www.iloveimg.com/zh_cn/compress-image
