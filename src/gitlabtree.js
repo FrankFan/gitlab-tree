@@ -68,15 +68,17 @@ var GitlabTree = (function($, win) {
     if (private_token) {
       private_token = private_token.replace(/\"/g, '');
     } else {
-      tryToGetTokenInGitlab9(function(result) {
-        if (result && result != 401) {
-          private_token = result;
-          dtd.resolve(true);
-        } else {
-          quit();
-          dtd.reject(false);
-        }
-      });
+      if (isFilesTab()) {
+        tryToGetTokenInGitlab9(function(result) {
+          if (result && result != 401) {
+            private_token = result;
+            dtd.resolve(true);
+          } else {
+            quit();
+            dtd.reject(false);
+          }
+        });
+      }
     }
   }
 
@@ -441,19 +443,21 @@ var GitlabTree = (function($, win) {
       } else { // blob
         var href = getClickedPath(data).fullPath;
         var filePath = getClickedPath(data).filePath;
+        var arrSplitFile = filePath.split('/');
+        var fileName = (arrSplitFile.length > 0) && arrSplitFile[arrSplitFile.length - 1] || '';
+        $('.file-holder .file-title-name').text(fileName);
 
-        var arrClickedDir = getLocalStorageData().arrAllLoadedDirs;
-        if (arrClickedDir[arrClickedDir.length - 1] === filePath) {
-          console.log('loaded the same path, abort');
-          return;
-        }
-        if (arrClickedDir && arrClickedDir.indexOf(filePath) < 0) {
-          arrClickedDir.push(filePath);
-          setLocalStorageData(arrClickedDir.join(','));
-        } else {
-          setLocalStorageData(filePath);
-        }
-        window.location.href = href;
+        $.ajax({
+          type: "GET",
+          url: href + '?format=json&viewer=simple',
+          dataType: 'json',
+          success: function (result) {
+            $(".blob-viewer").replaceWith(result.html);
+            $('pre code').each(function(i, block) {
+              hljs.highlightBlock(block);
+            });
+          }
+        });
       }
     });
 
@@ -682,14 +686,13 @@ var GitlabTree = (function($, win) {
             })
             .done(function(result) {
               hideSpinner();
-
-                createGitlabTreeContainer();
-                createGitlabTree(result);
-                clickNode();
-                handlePJAX();
-                handleToggleBtn();
-                hotkey();
-                hackStyle();
+              createGitlabTreeContainer();
+              createGitlabTree(result);
+              clickNode();
+              handlePJAX();
+              handleToggleBtn();
+              hotkey();
+              hackStyle();
             });
         });
     }
