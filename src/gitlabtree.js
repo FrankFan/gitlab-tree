@@ -443,21 +443,40 @@ var GitlabTree = (function($, win) {
       } else { // blob
         var href = getClickedPath(data).fullPath;
         var filePath = getClickedPath(data).filePath;
-        var arrSplitFile = filePath.split('/');
-        var fileName = (arrSplitFile.length > 0) && arrSplitFile[arrSplitFile.length - 1] || '';
-        $('.file-holder .file-title-name').text(fileName);
 
-        $.ajax({
-          type: "GET",
-          url: href + '?format=json&viewer=simple',
-          dataType: 'json',
-          success: function (result) {
-            $(".blob-viewer").replaceWith(result.html);
-            $('pre code').each(function(i, block) {
-              hljs.highlightBlock(block);
-            });
-          }
-        });
+        var arrClickedDir = getLocalStorageData().arrAllLoadedDirs;
+        if (arrClickedDir[arrClickedDir.length - 1] === filePath) {
+          console.log('loaded the same path, abort');
+          return;
+        }
+        if (arrClickedDir && arrClickedDir.indexOf(filePath) < 0) {
+          arrClickedDir.push(filePath);
+          setLocalStorageData(arrClickedDir.join(','));
+        } else {
+          setLocalStorageData(filePath);
+        }
+
+        if ($(".blob-viewer").length > 0) {
+          showLoading();
+          var arrSplitFile = filePath.split('/');
+          var fileName = (arrSplitFile.length > 0) && arrSplitFile[arrSplitFile.length - 1] || '';
+          $('.file-holder .file-title-name').text(fileName);
+
+          $.ajax({
+            type: "GET",
+            url: href + '?format=json&viewer=simple',
+            dataType: 'json',
+            success: function (result) {
+              $(".blob-viewer").replaceWith(result.html);
+              $('pre code').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+              hideLoading();
+            }
+          });
+        } else {
+          window.location.href = href;
+        }
       }
     });
 
