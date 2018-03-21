@@ -456,8 +456,6 @@ var GitlabTree = (function($, win) {
           setLocalStorageData(filePath);
         }
 
-
-
         if ($(".blob-viewer").length > 0) {
           showLoading();
           var arrSplitFile = filePath.split('/');
