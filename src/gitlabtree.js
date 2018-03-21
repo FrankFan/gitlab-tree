@@ -468,9 +468,7 @@ var GitlabTree = (function($, win) {
             dataType: 'json',
             success: function (result) {
               $(".blob-viewer").replaceWith(result.html);
-              $('pre code').each(function(i, block) {
-                hljs.highlightBlock(block);
-              });
+              $(".blob-viewer .file-content").addClass('white');
               hideLoading();
             }
           });
