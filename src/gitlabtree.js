@@ -456,20 +456,36 @@ var GitlabTree = (function($, win) {
           setLocalStorageData(filePath);
         }
 
+
+
         if ($(".blob-viewer").length > 0) {
           showLoading();
           var arrSplitFile = filePath.split('/');
           var fileName = (arrSplitFile.length > 0) && arrSplitFile[arrSplitFile.length - 1] || '';
           $('.file-holder .file-title-name').text(fileName);
-
+          var query;
+          if (fileName.toLowerCase().indexOf('.md') > -1 ||
+              fileName.toLowerCase().indexOf('.png') > -1 ||
+              fileName.toLowerCase().indexOf('.jpg') > -1 ||
+              fileName.toLowerCase().indexOf('.jpeg') > -1 ||
+              fileName.toLowerCase().indexOf('.gif') > -1
+            ) {
+            query = '?format=json&viewer=rich';
+          } else {
+            query = '?format=json&viewer=simple';
+          }
           $.ajax({
             type: "GET",
-            url: href + '?format=json&viewer=simple',
+            url: href + query,
             dataType: 'json',
             success: function (result) {
+              if ($(".blob-viewer").length > 1) {
+                $(".blob-viewer")[0].remove();
+              }
               $(".blob-viewer").replaceWith(result.html);
               $(".blob-viewer .file-content").addClass('white');
               hideLoading();
+              history.replaceState(null, null, href);
             }
           });
         } else {
