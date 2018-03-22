@@ -380,7 +380,8 @@ var GitlabTree = (function($, win) {
       .jstree({
         'core': {
           'data': treeData,
-          'check_callback': true
+          'check_callback': true,
+          dblclick_toggle: false,
         },
         plugins: ['wholerow']
       })
@@ -393,6 +394,10 @@ var GitlabTree = (function($, win) {
     $jstree.on("select_node.jstree", function(e, data) {
       var selectNode = $jstree.jstree('get_selected');
       if (data && data.node && data.node.data == 'tree') {
+        var isOpen = $(".gitlab-tree nav").jstree(true).is_open(data.node);
+        if (isOpen) {
+          return;
+        }
         var path = data.node.text;
         var currentNodeId = data.node.id;
         var parentNode = $jstree.jstree(true).get_parent(currentNodeId);
@@ -478,7 +483,7 @@ var GitlabTree = (function($, win) {
             dataType: 'json',
             success: function (result) {
               if ($(".blob-viewer").length > 1) {
-                $(".blob-viewer")[0].remove();
+                $(".blob-viewer").empty();
               }
               $(".blob-viewer").replaceWith(result.html);
               $(".blob-viewer .file-content").addClass('white');
