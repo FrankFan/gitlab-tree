@@ -89,16 +89,7 @@ var GitlabTree = (function($, win) {
         if (private_token) {
           callback && callback(private_token);
         } else {
-          // Not working
-          $.ajax(window.location.origin + '/profile/personal_access_tokens')
-            .then(function(data, status) {
-              private_token = data && $(data).find('#created-personal-access-token').val();
-              if (private_token) {
-                callback && callback(private_token);
-              } else {
-                console.log('private_token not found.');
-              }
-            });
+          console.log('Not private_token.');
         }
       })
       .fail(function(err) {
@@ -283,7 +274,6 @@ var GitlabTree = (function($, win) {
         NProgress.done();
         hideLoading();
 
-        // TODO: 这里无法高亮代码，需要优化
         $('pre code').each(function(i, block) {
           hljs.highlightBlock(block);
         });
@@ -291,7 +281,6 @@ var GitlabTree = (function($, win) {
     }
   }
 
-  // 判断当前是否是Files Tab
   var isFilesTab = function() {
     // gitlab 8.x
     var currentTabText = $('.project-navigation li.active a').text();
@@ -314,8 +303,6 @@ var GitlabTree = (function($, win) {
     return false;
   }
 
-  // path = "java/main/src/"
-  //    --> "src/main/java"
   var revertPath = function(revertedPathString) {
     var retString = '';
     var arrString = revertedPathString.split('/');
@@ -341,7 +328,6 @@ var GitlabTree = (function($, win) {
     return retString;
   }
 
-  // 删除数组中指定的元素
   var removeElement = function(index, array) {
     if (index >= 0 && index < array.length) {
       for (var i = index; i < array.length; i++) {
@@ -353,7 +339,6 @@ var GitlabTree = (function($, win) {
   }
 
   var createGitlabTreeContainer = function() {
-    // 创建一个container
     var htmlTemplate = '<div class="gitlab-tree" style="display: none;">\
                                 <header>\
                                     <div class="head">\
@@ -381,7 +366,7 @@ var GitlabTree = (function($, win) {
         'core': {
           'data': treeData,
           'check_callback': true,
-          dblclick_toggle: false,
+          'dblclick_toggle': false,
         },
         plugins: ['wholerow']
       })
@@ -415,8 +400,6 @@ var GitlabTree = (function($, win) {
             path += tmpText + '/';
           }
         });
-
-        // path = "java/main/src/"
         path = revertPath(path);
         var arrAllDirs = getLocalStorageData().arrAllLoadedDirs;
         if (arrAllDirs[arrAllDirs.length - 1] === path) {
@@ -580,7 +563,6 @@ var GitlabTree = (function($, win) {
     }
   }
 
-  // 显示tree里面的loading
   var showLoading = function() {
     $('.loader').show();
     $('.toggle-btn').removeClass('toggle-btn-color');
@@ -591,7 +573,6 @@ var GitlabTree = (function($, win) {
     $('.toggle-btn').addClass('toggle-btn-color');
   }
 
-  // 显示tree外面的loading
   var showSpinner = function() {
     $('.open-tree')
       .removeClass('fa fa-angle-right')
@@ -713,7 +694,6 @@ var GitlabTree = (function($, win) {
             return;
           }
 
-          // 2. 获取repo代码目录结构
           $.get(apiRepoTree, {
               private_token: private_token,
               id: project_id,
