@@ -466,6 +466,7 @@ var GitlabTree = (function($, win) {
             dataType: 'json',
             success: function (result) {
               if ($(".blob-viewer").length > 1) {
+                $(".blob-viewer.hidden").remove();
                 $(".blob-viewer").empty();
               }
               $(".blob-viewer").replaceWith(result.html);
