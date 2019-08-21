@@ -284,19 +284,20 @@ var GitlabTree = (function($, win) {
   var isFilesTab = function() {
     // gitlab 8.x
     var currentTabText = $('.project-navigation li.active a').text();
-    if (currentTabText === 'Files' || $('.nav.nav-sidebar li.active a').text().trim() === 'Files') {
+    var currentTabText1 = $('.nav.nav-sidebar li.active a').text().trim();
+    if (currentTabText === 'Files' ||  currentTabText1=== 'Files' || currentTabText === '文件' ||  currentTabText1=== '文件') {
       return true;
     }
 
     // gitlab 9.x
     var currentTabText2 = $('.nav-links.sub-nav li.active a').text().trim();
-    if (currentTabText2 === 'Files') {
+    if (currentTabText2 === 'Files' || currentTabText2 === '文件') {
       return true;
     }
 
     // gitlab 10.x
     var currentTabText3 = $('.nav-sidebar-inner-scroll ul.sidebar-top-level-items > li.active ul.sidebar-sub-level-items > li.active a').text().trim();
-    if (currentTabText3.indexOf('Files') > 0) {
+    if (currentTabText3.indexOf('Files') > 0 || currentTabText3.indexOf('文件') > 0) {
       return true;
     }
 
